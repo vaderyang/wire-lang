@@ -228,6 +228,8 @@ pbitstring_t bitstring_new_uint(
 	
 	/*align the value in uint_t sized (for later casting) memory container*/
 	char *psized_val = (char*)malloc(sizeof(uint_t));
+	*((uint_t*)psized_val) = 0;
+	
 	if(psized_val == NULL){
 		print_error("bitstring_new_uint: Could not allocate space!\n");
 		exit(1);
@@ -266,26 +268,15 @@ pbitstring_t bitstring_new_uint(
 						calc_leading_zeroes(psized_val[0], 8) - calc_leading_zeroes(val, size);	printf("leading_zeroes: %d\n", leading_zeroes);
 					//leading_zeroes == 3
 					*((uint_t*)psized_val) = *((uint_t*)psized_val) << leading_zeroes; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
-					//0b0000 1001 | 0001 1010 | 0010 1 - 000
+					//0b 0000 1001 | 0001 1010 | 0010 1 - 000
 				}
 				else{ //bit_order == ORD_LE
 					for(int i=0; i<size_bytes; i++){
 						conv_bit_order(psized_val+i, ORD_LE);
 					}
-					//psized_val == 0x21 0x43 0x50 | 0x00
+					//psized_val == 0b 1000 0000 | 0100 1100 | 1010 0010 - 0x00
 					conv_byte_order(psized_val, size_bytes*SZ_BYTE, ORD_LE);
-					//psized_val == 0x50 0x43 0x21 | 0x00
-					char first_byte = psized_val[0];
-					//first_byte == 0x50
-					uint_t temp = *((uint_t*)psized_val);
-					//temp == 0x50432100
-					temp = 
-						first_byte << (sizeof(uint_t)*SZ_BYTE-SZ_BYTE) //0x50000000
-						| 
-						temp << (SZ_BYTE - size%SZ_BYTE); //0x04321000
-					//temp = 0x50000000 | 0x04321000 == 0x54321000
-					memcpy(psized_val, &temp, size_bytes);
-					//psized_val == 0x54 0x32 0x10 | 0x00
+					//psized_val == 0b 1010 0010 | 0100 1100 | 1000 0000 - 0x00
 				}
 			}else{ //ORD_NAT_BYTE == ORD_LE
 			
