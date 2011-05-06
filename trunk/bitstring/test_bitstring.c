@@ -15,6 +15,12 @@ int main(){
 		bitstring_del(pbs1);
 	}
 
+
+	for(int i=20; i<25; i++){
+		pbitstring_t pbs1 = bitstring_new_uint(0x12345, i, ORD_NONE, ORD_LE);
+		bitstring_print(stdout, pbs1);
+		bitstring_del(pbs1);
+	}
 	
 	/*
 	pbs1 = bitstring_new_uint(0x1234, SZ_SHORT, ORD_LE, ORD_BE);
