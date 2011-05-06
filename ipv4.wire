@@ -1,0 +1,119 @@
+[
+	endianess("be"),
+	default_int_size(4),
+	default_integer_value(0),
+	default_bit_value(0),
+	default_byte_value(0)
+]
+protocol ipv4 {
+
+	[size_bits(3)] enum ePrecedence {
+		NetworkControl = 0b111,
+		InternetworkControl = 0b110,
+		CRITIC_ECP = 0b101,
+		FlashOverride = 0b100,
+		Flash = 0b011,
+		Immediate = 0b010,
+		Priority = 0b001,
+		Routine = 0b000
+	};
+
+	struct type_of_service {
+		[default_value(ePrecedence.Routine)]		enum ePrecedence precedence;
+		bit delay;
+		bit throughput;
+		bit relibility;
+		
+	};
+	
+	struct flags {
+		[const(0)]		bit reserverd;
+		bit df;
+		bit mf;
+		
+	};
+	
+	enum eProtocols {
+		Reserved=0,
+		ICMP=1,
+		Unassigned=2,
+		Gateway_to_Gateway=3,
+		CMCC=4,
+		ST=5,
+		TCP=6,
+		UCL=7,
+		Secure=9,
+		BBN=10,
+		NVP=11,
+		PUP=12,
+		Pluribus=13,
+		Telenet=14,
+		XNET=15,
+		Chaos=16,
+		User=17,
+		Multiplexing=18,
+		DCN=19,
+		TAC=20,
+		any=63,
+		SATNET=64,
+		MIT=65,
+		SATNET=69,
+		Unassigned=70,
+		Internet=71,
+		Backroom=76,
+		WIDEBAND=78,
+		WIDEBAND=79,
+		Reserved=255
+	};
+	
+	[size_bits(2)] enum eClass {
+			Control=0,
+			Reserved1=1,
+			DebuggingAndMeasurement=2,
+			Reserved2=3
+	};
+	
+	struct ip_opt_type {
+		bit copied;
+		enum eClass class;
+		[size_bits(5)] unsigned int number;
+	};
+	
+	struct ip_opt {
+		struct ip_opt_type type;
+		union <type> {
+			{copied = 0, class = eClass.Control, number = 0}:
+				[size(0)]	int nodata;
+			{copied = 0, class = eClass.Control, number = 1}:
+				[size(0)]	int nodata;
+			default:
+				[size(1)]	unsigned int length;
+							byte data[length-2];
+		} data;
+		struct ip_opt next_ip_opt;
+	};
+	
+	struct ipv4_header {
+		[size_bits(4), const(4)]	unsigned int ip_v;
+		[size_bits(4), min(5)]		unsigned int ip_hl;
+									struct type_of_service ip_tos;
+		[size(2), min(576)]			unsigned int ip_len;
+		[size(2)] 					unsigned int ip_id;
+									struct flags ip_flags;
+		[size_bits(13)]				unsigned int ip_off;
+		[size(1), default_value(255)] 	unsigned int ip_ttl;
+		[default_value(eProtocols.ICMP)]	enum eProtocols ip_p;
+		[size(2)] 					unsigned int ip_sum;
+		[size(4)] 					unsigned int ip_src;
+		[size(4)] 					unsigned int ip_dst;
+		[size(ip_hl*4 - 20)]		struct ip_opt ip_opts;
+	};
+	
+	packet ipv4_datagram {
+		struct ipv4_header hdr;
+		[align(4)] byte data[hdr.ip_len - hdr.ip_hl*4];
+	};
+	
+}
+
+
