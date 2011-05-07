@@ -211,7 +211,7 @@ char calc_leading_zeroes(uint_t val, unsigned int size){
 			break;
 		}
 	}
-	printf("val: %.8x size: %d count: %d\n", val, size, count);
+	printf("val: %.8x size: %d count: %d\n", (int)val, size, count);
 	return count;
 }
 
@@ -253,22 +253,22 @@ pbitstring_t bitstring_new_uint(
 			val = 0x12345 - serialize to bit oriented of size=21
 				and bit_order:
 					ORD_BE --> 0b0000 1001 | 0001 1010 | 0010 1 - 000
-					ORD_LE --> 0x54 0x32 0b1000 0b0
+					ORD_LE --> 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 			Step 1: determine bit/byte memory layout of our value
 			Step 2: determine bit memory layout of serialized object
 					- count leading zeroes that must be stripped (not all)
 			Step 3: transfom one into another
 		*/
 		if(ORD_NAT_BIT == ORD_BE){ 
+			printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 			if(ORD_NAT_BYTE == ORD_BE){
-				printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 				//psized_val == 0x01 | 0x23 | 0x45 - 0x00 - byte/bit memory layout
 				if(bit_order == ORD_BE){
 					char leading_zeroes = 
 						calc_leading_zeroes(psized_val[0], 8) - calc_leading_zeroes(val, size);	printf("leading_zeroes: %d\n", leading_zeroes);
 					//leading_zeroes == 3
 					*((uint_t*)psized_val) = *((uint_t*)psized_val) << leading_zeroes; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
-					//0b 0000 1001 | 0001 1010 | 0010 1 - 000
+					//psized_val == 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 				}
 				else{ //bit_order == ORD_LE
 					for(int i=0; i<size_bytes; i++){
@@ -279,10 +279,24 @@ pbitstring_t bitstring_new_uint(
 					//psized_val == 0b 1010 0010 | 0100 1100 | 1000 0000 - 0x00
 				}
 			}else{ //ORD_NAT_BYTE == ORD_LE
-			
+				//psized_val == 0x45 | 0x23 | 0x01 - 0x00 -byte/bit memory layout
+				if(bit_order == ORD_BE){
+					conv_byte_order(psized_val, size_bytes*SZ_BYTE, ORD_BE);
+					//psized_val == 0x01 | 0x23 | 0x45 - 0x00
+					char leading_zeroes = 
+						calc_leading_zeroes(psized_val[0], 8) - calc_leading_zeroes(val, size);	printf("leading_zeroes: %d\n", leading_zeroes);
+					//leading_zeroes == 3
+					*((uint_t*)psized_val) = *((uint_t*)psized_val) << leading_zeroes; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
+					//psized_val == 0b 0000 1001 | 0001 1010 | 0010 1 - 000
+				}else{//bit_order == ORD_LE
+					for(int i=0; i<size_bytes; i++){
+						conv_bit_order(psized_val+i, ORD_LE);
+					}
+					//psized_val == 1010 0010 | 1100 0100 | 1000 0000 - 0x00
+				}
 			}	
 		}else{ //ORD_NAT_BIT == ORD_LE
-			//TODO: pain in the arss
+			//TODO: implement serialization for LE bit order machines (if exists one)
 		}
 	}
 	
