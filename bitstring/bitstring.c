@@ -61,6 +61,9 @@ void bitstring_lib_init(){
 #############################################################################
 */
 
+/*
+@desc: Makes an empty bitstring.
+*/
 pbitstring_t bitstring_new(){
 	pbitstring_t pbs = (pbitstring_t)malloc(sizeof(bitstring_t));
 	if(pbs == NULL){
@@ -68,21 +71,40 @@ pbitstring_t bitstring_new(){
 		exit(1);
 	}
 	
-	pbs->data = (char*)malloc(BSTR_DATA_SZ);
-	if(pbs->data == NULL){
-		print_error("bitstring_new: Could not allocate space!\n");
-		exit(1);
-	}
-	pbs->size = 0;
-	pbs->alloc_size_bytes = BSTR_DATA_SZ;
+	bitstring_set(pbs, NULL, 0);
 
 	return pbs;
 }
 
+/*
+@desc: Deletes a bitstring.
+*/
 void bitstring_del(pbitstring_t pbs){
 	free(pbs->data);
 	free(pbs);
 }
+
+/*
+@desc: Sets bitstrings data and size. Handles allocation and error handling.
+*/
+pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
+	unsigned int size_bytes = size/SZ_BYTE;
+	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
+
+	pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
+	if(pbs->data == NULL){
+		print_error("bitstring_set: Could not allocate space!\n");
+		exit(1);
+	}
+	pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
+
+	memcpy(pbs->data, data, size_bytes);
+
+	pbs->size = size;
+
+	return pbs;
+}
+
 /*pos begins with 0*/
 char bitstring_get_bit(pbitstring_t pbs, int pos){
 	char get_byte = pbs->data[pos/SZ_BYTE];
@@ -235,7 +257,6 @@ pbitstring_t bitstring_new_uint(
 	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
 	
 	pbitstring_t pbs = bitstring_new();
-	pbs->size = size;
 	
 	/*align the value in uint_t sized (for later casting) memory container*/
 	char *psized_val = (char*)malloc(sizeof(uint_t));
@@ -329,7 +350,6 @@ pbitstring_t bitstring_new_fp(
 	}
 
 	pbitstring_t pbs = bitstring_new();
-	pbs->size = size;
 	
 	if(size == 32){
 		float new_val = (float)val;
@@ -340,23 +360,6 @@ pbitstring_t bitstring_new_fp(
 	}else{
 		print_warning("Only 32b/64b fps are supported\n");
 	}
-	
-	return pbs;
-}
-
-pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
-	unsigned int size_bytes = size/SZ_BYTE;
-	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
-
-	if(size_bytes > pbs->alloc_size_bytes){
-		pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
-		if(pbs->data == NULL){
-			print_error("bitstring_set: Could not allocate space!\n");
-			exit(1);
-		}
-		pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
-	}
-	memcpy(pbs->data, data, size_bytes);
 	
 	return pbs;
 }
