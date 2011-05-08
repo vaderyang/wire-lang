@@ -40,7 +40,9 @@ char get_native_fp_rep(){
 }
 
 /*INIT*/
-/*Initializes the bitstring library. Should be called for every instance.*/
+/*
+desc Initializes the bitstring library. Should be called before usage.
+*/
 void bitstring_lib_init(){
 	print_debug("[BITSTRING_LIB_INIT]\n");
 	
@@ -62,13 +64,13 @@ void bitstring_lib_init(){
 */
 
 /*
-@desc: Makes an empty bitstring.
+@desc Makes an empty bitstring.
 */
 pbitstring_t bitstring_new(){
 	pbitstring_t pbs = (pbitstring_t)malloc(sizeof(bitstring_t));
 	if(pbs == NULL){
 		print_error("bitstring_new: Could not allocate space!\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	
 	bitstring_set(pbs, NULL, 0);
@@ -77,7 +79,7 @@ pbitstring_t bitstring_new(){
 }
 
 /*
-@desc: Deletes a bitstring.
+@desc Deletes a bitstring.
 */
 void bitstring_del(pbitstring_t pbs){
 	free(pbs->data);
@@ -85,7 +87,7 @@ void bitstring_del(pbitstring_t pbs){
 }
 
 /*
-@desc: Sets bitstrings data and size. Handles allocation and error handling.
+@desc Sets bitstrings data and size. Handles allocation and error handling.
 */
 pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 	unsigned int size_bytes = size/SZ_BYTE;
@@ -94,7 +96,7 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 	pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
 	if(pbs->data == NULL){
 		print_error("bitstring_set: Could not allocate space!\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
 
@@ -105,20 +107,26 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 	return pbs;
 }
 
-/*pos begins with 0*/
+/*
+@desc Get a bit value from a specified position.
+@NOTE: Positions are indexed starting with 0.
+*/
 char bitstring_get_bit(pbitstring_t pbs, int pos){
 	char get_byte = pbs->data[pos/SZ_BYTE];
 	char get_bit = ((get_byte>>(SZ_BYTE - pos%SZ_BYTE - 1)) & 0x01);
 	return get_bit;
 }
 
+/*
+@desc Appends a single bit onto a bitstring.
+*/
 void bitstring_append_bit(pbitstring_t pbs, char append_bit){
 	unsigned int size_bytes = (pbs->size+1)/SZ_BYTE;
 	if(size_bytes > pbs->alloc_size_bytes){
 		pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
 		if(pbs->data == NULL){
 			print_error("bitstring_append_bit: Could not allocate space!\n");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
 	}
@@ -129,6 +137,9 @@ void bitstring_append_bit(pbitstring_t pbs, char append_bit){
 	pbs->size++;
 }
 
+/*
+@desc Append a source bitstring onto a destination bitstring.
+*/
 pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src){
 	int appended_bits = 0;
 	/*If byte aligned then great...we can use memcpy*/
@@ -138,7 +149,7 @@ pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src){
 				realloc(dest->data, (int)(dest->size/SZ_BYTE) + (int)(src->size/SZ_BYTE) + BSTR_DATA_SZ);
 			if(dest->data == NULL){
 				print_error("bitstring_append: Could not allocate space!\n");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 		}
 		memcpy(dest->data + (int)(dest->size/SZ_BYTE), src->data, (int)(src->size/SZ_BYTE));
@@ -152,19 +163,13 @@ pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src){
 	return dest;
 }
 
+/*
+@desc Prints a bitstring into a file.
+*/
 void bitstring_print(FILE* fp, pbitstring_t pbs){
-	fprintf(fp, "[BITSTRING]\n");
-	fprintf(fp, "\tsize: %d", pbs->size);
-
+	fprintf(fp, "0b");
 	for(int i=0; i<pbs->size; i++){
-		if(i%SZ_BYTE == 0){
-			fprintf(fp, "\n\t0b");
-		}
 		fprintf(fp, "%d", bitstring_get_bit(pbs, i));
-	}
-	fprintf(fp, "\n\t0x");
-	for(int i=0; i<pbs->size; i+=SZ_BYTE){
-		fprintf(fp, "%.2x", pbs->data[i/SZ_BYTE]);
 	}
 	fprintf(fp, "\n");
 }
@@ -179,8 +184,9 @@ Exceptions: crypto
 */
 
 /*
-Method is independent of data type you wish to convert byte order to.
-For example it can be short long ,float or double...
+@desc Converts byte order of memory pointed to by "pval".
+@NOTE: Method is independent of data type you wish to convert byte order to
+	(integers, floats, arrays).
 */
 void conv_byte_order(void* pval, unsigned int size, char byte_order){
 	if(byte_order == get_native_byte_order()){
@@ -194,7 +200,7 @@ void conv_byte_order(void* pval, unsigned int size, char byte_order){
 	char *pold_val = (char*)malloc(size/SZ_BYTE);
 	if(pold_val == NULL){
 		print_error("conv_byte_order: Could not allocate space!\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	memcpy(pold_val, pval, size/SZ_BYTE);
 	char* pold = (char*)pold_val;
@@ -207,7 +213,9 @@ void conv_byte_order(void* pval, unsigned int size, char byte_order){
 	}
 }
 
-/*Converts bit order in a byte - if needed*/
+/*
+@desc Converts bit order in a byte.
+*/
 void conv_bit_order(char* pval, char bit_order){
 	if(bit_order == get_native_bit_order()){
 		return; //no need for conversion
@@ -225,7 +233,7 @@ void conv_bit_order(char* pval, char bit_order){
 }
 
 /*
-@desc: Shifts bits to the left in a byte array.
+@desc Shifts bits to the left in a byte array.
 @NOTE: This is a workaround for le machine integer shifts.
 @example: val_mem = 0x45 | 0x23 | 0x01 ->(shift 3)-> val_mem = 0x29 | 0x18 | 0x08 
 */
@@ -248,7 +256,21 @@ void shift_left_le(char* pval, unsigned int size_bytes, char shift_count){
 	}
 }
 
-/*ORD_NONE - for bit oriented values rather than byte*/
+/*
+@desc Makes a new bitstring which represents a serialized unsigned integer value.
+@arg "val" Unsigned integer value which is to be serialized into a bitstring.
+@arg "size" Size of serialized object.
+@arg "byte_order" Byte ordering for serialized object.
+	ORD_BE - big endian
+	ORD_LE - little endian
+	ORD_NONE - no byte ordering, the integer is to be serialized into a bit 
+		oriented instead of byte oriented object
+@arg "bit_order" Bit ordering for serialized object. If integer is to be 
+	serialized into a byte oriented object rather than a bit oriented, bit order
+	is consider for each byte of serialized object (rather than a whole)
+	ORD_BE - big endian
+	ORD_LE - little endian
+*/
 pbitstring_t bitstring_new_uint(
 		uint_t val, unsigned int size, 
 		char byte_order, char bit_order){
@@ -264,7 +286,7 @@ pbitstring_t bitstring_new_uint(
 	
 	if(psized_val == NULL){
 		print_error("bitstring_new_uint: Could not allocate space!\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if(ORD_NAT_BYTE == ORD_LE){
 		memcpy(psized_val, &val, size_bytes);
@@ -291,13 +313,13 @@ pbitstring_t bitstring_new_uint(
 			Step 3: transfom one into another
 		*/
 		if(ORD_NAT_BIT == ORD_BE){ 
-			printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
+			////printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 			if(ORD_NAT_BYTE == ORD_BE){
 				//psized_val == 0x01 | 0x23 | 0x45 - 0x00 - byte/bit memory layout
 				if(bit_order == ORD_BE){
-					char shift_count = size_bytes*SZ_BYTE - size; printf("shift_count: %d\n", shift_count);
+					char shift_count = size_bytes*SZ_BYTE - size; //printf("shift_count: %d\n", shift_count);
 					//shift_count == 3
-					*((uint_t*)psized_val) = *((uint_t*)psized_val) << shift_count; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
+					*((uint_t*)psized_val) = *((uint_t*)psized_val) << shift_count; //printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 					//psized_val == 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 				}
 				else{ //bit_order == ORD_LE
@@ -313,9 +335,9 @@ pbitstring_t bitstring_new_uint(
 				if(bit_order == ORD_BE){
 					conv_byte_order(psized_val, size_bytes*SZ_BYTE, ORD_BE);
 					//psized_val == 0x01 | 0x23 | 0x45 - 0x00
-					char shift_count = size_bytes*SZ_BYTE - size; printf("shift_count: %d\n", shift_count);
+					char shift_count = size_bytes*SZ_BYTE - size; //printf("shift_count: %d\n", shift_count);
 					//shift_count == 3
-					shift_left_le(psized_val, size_bytes, shift_count); printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
+					shift_left_le(psized_val, size_bytes, shift_count); //printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 					//psized_val == 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 				}else{//bit_order == ORD_LE
 					for(int i=0; i<size_bytes; i++){
@@ -334,6 +356,9 @@ pbitstring_t bitstring_new_uint(
 	return pbs;
 }
 
+/*
+@desc Makes a new bitstring which represents a serialized signed integer value.
+*/
 pbitstring_t bitstring_new_sint(
 		sint_t val, unsigned int size, 
 		char byte_order, char bit_order){
@@ -341,7 +366,14 @@ pbitstring_t bitstring_new_sint(
 	return bitstring_new_uint((uint_t)val, size, byte_order, bit_order);
 }
 
-/*@NOTE: Consider byte/bit ordering with fps?*/
+/*
+@desc Makes a new bitstring which represents a serialized floating point value.
+@arg "val" Floating point value which is to be serialized into a bitstring.
+@arg "size" Bitstring size (32, 64).
+@arg "fp_rep" Floating point representation (see header for list of possible
+	values).
+@NOTE: Currently IEEE754 format is supported with 32 and 64bit sizes.
+*/
 pbitstring_t bitstring_new_fp(
 		fp_t val, unsigned int size, char fp_rep){
 	

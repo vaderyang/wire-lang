@@ -12,14 +12,14 @@ int main(){
 	pbitstring_t pbs1;
 	pbitstring_t pbs2;
 	
-	for(int i=20; i<25; i++){
+	for(int i=20; i<33; i++){
 		pbs1 = bitstring_new_uint(0x12345, i, ORD_NONE, ORD_BE);
 		bitstring_print(stdout, pbs1);
 		bitstring_del(pbs1);
 	}
 
 
-	for(int i=20; i<25; i++){
+	for(int i=20; i<33; i++){
 		pbs1 = bitstring_new_uint(0x12345, i, ORD_NONE, ORD_LE);
 		bitstring_print(stdout, pbs1);
 		bitstring_del(pbs1);
