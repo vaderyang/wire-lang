@@ -93,7 +93,7 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 	unsigned int size_bytes = size/SZ_BYTE;
 	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
 
-	pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
+	pbs->data = malloc(size_bytes + BSTR_DATA_SZ);
 	if(pbs->data == NULL){
 		print_error("bitstring_set: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
