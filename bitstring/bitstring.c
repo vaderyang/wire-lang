@@ -202,17 +202,28 @@ void conv_bit_order(char* pval, char bit_order){
 	}	
 }
 
-char calc_leading_zeroes(uint_t val, unsigned int size){
-	char count = 0;
-	for(int i=size-1; i>=0; i--){
-		if(!((1<<i) & val)){
-			count++;
-		}else{
-			break;
+/*
+@desc: Shifts bits to the left in a byte array.
+@NOTE: This is a workaround for le machine integer shifts.
+@example: val_mem = 0x45 | 0x23 | 0x01 ->(shift 3)-> val_mem = 0x29 | 0x18 | 0x08 
+*/
+void shift_left_le(char* pval, unsigned int size_bytes, char shift_count){
+	//val = 0x12345 val_mem = 0x45 | 0x23 | 0x01 - 0x00
+	//shift_count = 3 size_bytes = 3
+	short int two_bytes = 0;
+	for(int i=0; i<size_bytes; i++){
+		//i=1
+		two_bytes = pval[i];
+		//two_bytes = 0x0023 two_bytes_mem = 0x23 | 0x00
+		two_bytes = two_bytes << shift_count;
+		//two_bytes = 0x00118 two_bytes_mem = 0x18 | 0x01
+		pval[i] = *((char*)&two_bytes);
+		//pval[1] = 0x18
+		if(i>0){
+			pval[i-1] |= *((char*)&two_bytes+1);
+			//pval[0] = 0x28 | 0x01 = 0x29
 		}
 	}
-	printf("val: %.8x size: %d count: %d\n", (int)val, size, count);
-	return count;
 }
 
 /*ORD_NONE - for bit oriented values rather than byte*/
@@ -252,11 +263,10 @@ pbitstring_t bitstring_new_uint(
 			The algorithm for serialization to bit oriented object
 			val = 0x12345 - serialize to bit oriented of size=21
 				and bit_order:
-					ORD_BE --> 0b0000 1001 | 0001 1010 | 0010 1 - 000
+					ORD_BE --> 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 					ORD_LE --> 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 			Step 1: determine bit/byte memory layout of our value
 			Step 2: determine bit memory layout of serialized object
-					- count leading zeroes that must be stripped (not all)
 			Step 3: transfom one into another
 		*/
 		if(ORD_NAT_BIT == ORD_BE){ 
@@ -264,10 +274,9 @@ pbitstring_t bitstring_new_uint(
 			if(ORD_NAT_BYTE == ORD_BE){
 				//psized_val == 0x01 | 0x23 | 0x45 - 0x00 - byte/bit memory layout
 				if(bit_order == ORD_BE){
-					char leading_zeroes = 
-						calc_leading_zeroes(psized_val[0], 8) - calc_leading_zeroes(val, size);	printf("leading_zeroes: %d\n", leading_zeroes);
-					//leading_zeroes == 3
-					*((uint_t*)psized_val) = *((uint_t*)psized_val) << leading_zeroes; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
+					char shift_count = size_bytes*SZ_BYTE - size; printf("shift_count: %d\n", shift_count);
+					//shift_count == 3
+					*((uint_t*)psized_val) = *((uint_t*)psized_val) << shift_count; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 					//psized_val == 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 				}
 				else{ //bit_order == ORD_LE
@@ -283,16 +292,15 @@ pbitstring_t bitstring_new_uint(
 				if(bit_order == ORD_BE){
 					conv_byte_order(psized_val, size_bytes*SZ_BYTE, ORD_BE);
 					//psized_val == 0x01 | 0x23 | 0x45 - 0x00
-					char leading_zeroes = 
-						calc_leading_zeroes(psized_val[0], 8) - calc_leading_zeroes(val, size);	printf("leading_zeroes: %d\n", leading_zeroes);
-					//leading_zeroes == 3
-					*((uint_t*)psized_val) = *((uint_t*)psized_val) << leading_zeroes; printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
+					char shift_count = size_bytes*SZ_BYTE - size; printf("shift_count: %d\n", shift_count);
+					//shift_count == 3
+					shift_left_le(psized_val, size_bytes, shift_count); printf("psized_val: 0x%.2x 0x%.2x 0x%.2x 0x%.2x\n", psized_val[0],psized_val[1],psized_val[2],psized_val[3]);
 					//psized_val == 0b 0000 1001 | 0001 1010 | 0010 1 - 000
 				}else{//bit_order == ORD_LE
 					for(int i=0; i<size_bytes; i++){
 						conv_bit_order(psized_val+i, ORD_LE);
 					}
-					//psized_val == 1010 0010 | 1100 0100 | 1000 0000 - 0x00
+					//psized_val == 0b 1010 0010 | 1100 0100 | 1000 0000 - 0x00
 				}
 			}	
 		}else{ //ORD_NAT_BIT == ORD_LE
