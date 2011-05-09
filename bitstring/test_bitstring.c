@@ -34,24 +34,38 @@ int main(){
 	bitstring_print(stdout, pbs1);
 	bitstring_del(pbs1);
 	
-	/*
+	
 	pbs1 = bitstring_new_uint(0x1234, SZ_SHORT, ORD_LE, ORD_BE);
 	bitstring_print(stdout, pbs1);
+	bitstring_del(pbs1);
 	pbs1 = bitstring_new_uint(0x1234, SZ_SHORT, ORD_BE, ORD_BE);
 	bitstring_print(stdout, pbs1);
+	bitstring_del(pbs1);
 	pbs1 = bitstring_new_uint(0x1234, SZ_SHORT, ORD_LE, ORD_LE);
 	bitstring_print(stdout, pbs1);
+	bitstring_del(pbs1);
 	pbs1 = bitstring_new_uint(0x1234, SZ_SHORT, ORD_BE, ORD_LE);
 	bitstring_print(stdout, pbs1);
-	*/
-	// /*FLOATING POINT TEST*/
-	// fprintf(stdout, "FP TEST:\n");
-	// pbs1 = bitstring_new_fp(3.14, 32, FP_IEEE754);
-	// bitstring_print(stdout, pbs1);
-	// fprintf(stdout, "%f\n", *((float*)pbs1->data));
-	// pbs1 = bitstring_new_fp(3.14, 64, FP_IEEE754);
-	// bitstring_print(stdout, pbs1);
-	// fprintf(stdout, "%f\n", *((double*)pbs1->data));
+	bitstring_del(pbs1);
+		
+	/*FLOATING POINT TEST*/
+	fprintf(stdout, "FP TEST:\n");
+	pbs1 = bitstring_new_fp(3.14, SZ_LONG, FP_IEEE754, ORD_LE, ORD_BE);
+	bitstring_print(stdout, pbs1);
+	fprintf(stdout, "%f\n", *((float*)pbs1->data));
+	bitstring_del(pbs1);
+	pbs1 = bitstring_new_fp(3.14, SZ_LONG, FP_IEEE754, ORD_BE, ORD_BE);
+	bitstring_print(stdout, pbs1);
+	fprintf(stdout, "%f\n", *((float*)pbs1->data));
+	bitstring_del(pbs1);
+	pbs1 = bitstring_new_fp(3.14, SZ_LONG, FP_IEEE754, ORD_LE, ORD_LE);
+	bitstring_print(stdout, pbs1);
+	fprintf(stdout, "%f\n", *((float*)pbs1->data));
+	bitstring_del(pbs1);
+	pbs1 = bitstring_new_fp(3.14, SZ_LONG, FP_IEEE754, ORD_BE, ORD_LE);
+	bitstring_print(stdout, pbs1);
+	fprintf(stdout, "%f\n", *((float*)pbs1->data));
+	bitstring_del(pbs1);
 	
 	// /*APPEND AND ALLOC TEST*/
 	// fprintf(stdout, "APPEND AND ALLOC TEST\n");

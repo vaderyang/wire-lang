@@ -41,7 +41,9 @@ char get_native_fp_rep(){
 
 /*INIT*/
 /*
-desc Initializes the bitstring library. Should be called before usage.
+@desc Initializes the bitstring library. Should be called before usage.
+@note The assumption is that bitstrings are running on a 
+	big endian bit machines.
 */
 void bitstring_lib_init(){
 	print_debug("[BITSTRING_LIB_INIT]\n");
@@ -232,6 +234,38 @@ void conv_bit_order(char* pval, char bit_order){
 	}	
 }
 
+void conv_byte_bit_order(
+	char* pval, unsigned int size, 
+	char byte_order, char bit_order){
+	
+	if(size%SZ_BYTE != 0){
+		return; //there's no byte order concept for non byte sized data
+	}
+	
+	char *pold_val = (char*)malloc(size/SZ_BYTE);
+	if(pold_val == NULL){
+		print_error("conv_byte_bit_order: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
+	}
+	memcpy(pold_val, pval, size/SZ_BYTE);
+	char* pold = (char*)pold_val;
+	char* pnew = (char*)pval + size/SZ_BYTE - 1;
+	
+	if(byte_order == ORD_NAT_BYTE){
+		for(int i=0; i<size/SZ_BYTE; i++){
+			conv_bit_order(pnew, bit_order);
+			pnew--;
+		}
+	}else{ //reverse the order
+		for(int i=0; i<size/SZ_BYTE; i++){
+			*pnew = *pold;
+			conv_bit_order(pnew, bit_order);
+			pnew--;
+			pold++;
+		}
+	}	
+}
+
 /*
 @desc Shifts bits to the left in a byte array.
 @NOTE: This is a workaround for le machine integer shifts.
@@ -375,7 +409,8 @@ pbitstring_t bitstring_new_sint(
 @NOTE: Currently IEEE754 format is supported with 32 and 64bit sizes.
 */
 pbitstring_t bitstring_new_fp(
-		fp_t val, unsigned int size, char fp_rep){
+		fp_t val, unsigned int size, char fp_rep, 
+		char byte_order, char bit_order){
 	
 	if(fp_rep != FP_IEEE754){
 		print_warning("Only IEEE754 fp representation is supported!\n");
@@ -385,10 +420,14 @@ pbitstring_t bitstring_new_fp(
 	
 	if(size == 32){
 		float new_val = (float)val;
-		bitstring_set(pbs, &new_val, sizeof(float)*SZ_BYTE);
+		unsigned int size = sizeof(float)*SZ_BYTE;
+		conv_byte_bit_order((char*)&new_val, size, byte_order, bit_order);
+		bitstring_set(pbs, &new_val, size);
 	}else if(size == 64){
 		double new_val = (double)val;
-		bitstring_set(pbs, &new_val, sizeof(double)*SZ_BYTE);
+		unsigned int size = sizeof(float)*SZ_BYTE;
+		conv_byte_bit_order((char*)&new_val, size, byte_order, bit_order);
+		bitstring_set(pbs, &new_val, size);
 	}else{
 		print_warning("Only 32b/64b fps are supported\n");
 	}
