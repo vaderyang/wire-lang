@@ -50,10 +50,12 @@ int new_fp(lua_State *L){
 	fp_t val = luaL_checknumber(L,1); //value
 	unsigned int size = luaL_checknumber(L,2); //size
 	char fp_rep = luaL_checknumber(L,3); //fp representation
-	
+	char byte_order = luaL_checknumber(L,4); //byte order
+	char bit_order = luaL_checknumber(L,5); //bit order
+
 	printf("%f,%d,%d\n", val, size, fp_rep);
 	
-	pbitstring_t pbs = bitstring_new_fp(val, size, fp_rep);
+	pbitstring_t pbs = bitstring_new_fp(val, size, fp_rep, byte_order, bit_order);
 	pbitstring_t* ppbs = lua_newuserdata(L, sizeof(pbitstring_t));
 	*ppbs = pbs;
 	
@@ -148,33 +150,32 @@ int size(lua_State *L){
 	return 1;
 }
 
-int set_raw(lua_State *L){
-	printf("set raw...\n");
+int set(lua_State *L){
+	printf("set...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
 	
 	unsigned int size_bytes;
 	void* data = (void*)luaL_checklstring(L,2, &size_bytes);
+	unsigned int size = luaL_checknumber(L, 3);
 	
-	printf("%d\n", size_bytes*BYTE_SZ);
-	bitstring_set(pbs, data, size_bytes*BYTE_SZ);
-	pbs->size = size_bytes*BYTE_SZ;
+	bitstring_set(pbs, data, size);
 	
 	return 0;
 }
 
-int get_raw(lua_State *L){
-	printf("get raw...\n");
+int get(lua_State *L){
+	printf("get...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
 	
 	unsigned int size_bytes = 
-		pbs->size%BYTE_SZ ? pbs->size/BYTE_SZ+1 : pbs->size/BYTE_SZ;
+		pbs->size%SZ_BYTE ? pbs->size/SZ_BYTE+1 : pbs->size/SZ_BYTE;
 	
-	printf("%d\n", size_bytes);
 	lua_pushlstring(L, pbs->data, size_bytes);
+	lua_pushnumber(L, pbs->size);
 	return 1;
 }
 
@@ -195,8 +196,8 @@ int luaopen_bitstring(lua_State *L){
 		{"get_byte", get_byte},
 		{"append_bit", append_bit},
 		{"append", append},
-		{"set_raw", set_raw},
-		{"get_raw", get_raw},
+		{"set", set},
+		{"get", get},
 		{"__concat", append},
 		{"__gc", delete},
 		{"__tostring", dump},
