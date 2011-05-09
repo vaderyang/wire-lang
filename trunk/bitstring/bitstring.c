@@ -111,7 +111,7 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 
 /*
 @desc Get a bit value from a specified position.
-@NOTE: Positions are indexed starting with 0.
+@note Positions are indexed starting with 0. Assume native big endian bit order.
 */
 char bitstring_get_bit(pbitstring_t pbs, int pos){
 	char get_byte = pbs->data[pos/SZ_BYTE];
@@ -121,6 +121,7 @@ char bitstring_get_bit(pbitstring_t pbs, int pos){
 
 /*
 @desc Appends a single bit onto a bitstring.
+@note Assume native big endian bit order.
 */
 void bitstring_append_bit(pbitstring_t pbs, char append_bit){
 	unsigned int size_bytes = (pbs->size+1)/SZ_BYTE;
@@ -177,7 +178,7 @@ void bitstring_print(FILE* fp, pbitstring_t pbs){
 }
 
 /*
-@NOTE: for practical examples there isn't much need for numbers
+@note for practical examples there isn't much need for numbers
 that are bigger than 64 bits. So we'll keep it down and assume
 that they are max native long sized. In the future if there is
 a need for such a feature we'll introduce a dependencie lib such
@@ -187,28 +188,26 @@ Exceptions: crypto
 
 /*
 @desc Converts byte order of memory pointed to by "pval".
-@NOTE: Method is independent of data type you wish to convert byte order to
+@note Method is independent of data type you wish to convert byte order to
 	(integers, floats, arrays).
+@faq Why is here "size_bytes" arg when everywhere else is "size" in bits?
+	- Because there's no byte order concept for non byte oriented data.
 */
-void conv_byte_order(void* pval, unsigned int size, char byte_order){
-	if(byte_order == get_native_byte_order()){
+void conv_byte_order(void* pval, unsigned int size_bytes, char byte_order){
+	if(byte_order == ORD_NAT_BYTE){
 		return; //no need for conversion
 	}
-
-	if(size%SZ_BYTE != 0){
-		return; //there's no byte order concept for non byte sized data
-	}
 	
-	char *pold_val = (char*)malloc(size/SZ_BYTE);
+	char *pold_val = (char*)malloc(size_bytes);
 	if(pold_val == NULL){
 		print_error("conv_byte_order: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
-	memcpy(pold_val, pval, size/SZ_BYTE);
+	memcpy(pold_val, pval, size_bytes);
 	char* pold = (char*)pold_val;
-	char* pnew = (char*)pval + size/SZ_BYTE - 1;
+	char* pnew = (char*)pval + size_bytes - 1;
 	
-	for(int i=0; i<size/SZ_BYTE; i++){
+	for(int i=0; i<size_bytes; i++){
 		*pnew = *pold;
 		pnew--;
 		pold++;
@@ -235,29 +234,25 @@ void conv_bit_order(char* pval, char bit_order){
 }
 
 void conv_byte_bit_order(
-	char* pval, unsigned int size, 
+	char* pval, unsigned int size_bytes, 
 	char byte_order, char bit_order){
 	
-	if(size%SZ_BYTE != 0){
-		return; //there's no byte order concept for non byte sized data
-	}
-	
-	char *pold_val = (char*)malloc(size/SZ_BYTE);
+	char *pold_val = (char*)malloc(size_bytes);
 	if(pold_val == NULL){
 		print_error("conv_byte_bit_order: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
-	memcpy(pold_val, pval, size/SZ_BYTE);
+	memcpy(pold_val, pval, size_bytes);
 	char* pold = (char*)pold_val;
-	char* pnew = (char*)pval + size/SZ_BYTE - 1;
+	char* pnew = (char*)pval + size_bytes - 1;
 	
 	if(byte_order == ORD_NAT_BYTE){
-		for(int i=0; i<size/SZ_BYTE; i++){
+		for(int i=0; i<size_bytes; i++){
 			conv_bit_order(pnew, bit_order);
 			pnew--;
 		}
 	}else{ //reverse the order
-		for(int i=0; i<size/SZ_BYTE; i++){
+		for(int i=0; i<size_bytes; i++){
 			*pnew = *pold;
 			conv_bit_order(pnew, bit_order);
 			pnew--;
@@ -268,7 +263,7 @@ void conv_byte_bit_order(
 
 /*
 @desc Shifts bits to the left in a byte array.
-@NOTE: This is a workaround for le machine integer shifts.
+@note This is a workaround for le machine integer shifts.
 @example: val_mem = 0x45 | 0x23 | 0x01 ->(shift 3)-> val_mem = 0x29 | 0x18 | 0x08 
 */
 void shift_left_le(char* pval, unsigned int size_bytes, char shift_count){
@@ -331,10 +326,7 @@ pbitstring_t bitstring_new_uint(
 	
 	
 	if(byte_order != ORD_NONE){ //byte oriented (byte unit)
-		conv_byte_order(psized_val, size, byte_order); //TODO: conv_byte_and_bit_order()
-		for(int i=0; i<size_bytes; i++){
-			conv_bit_order(psized_val+i, bit_order);
-		}
+		conv_byte_bit_order(psized_val, size_bytes, byte_order, bit_order);
 	}else{ //bit oriented (bit unit)
 		/* 
 			The algorithm for serialization to bit oriented object
@@ -361,13 +353,13 @@ pbitstring_t bitstring_new_uint(
 						conv_bit_order(psized_val+i, ORD_LE);
 					}
 					//psized_val == 0b 1000 0000 | 0100 1100 | 1010 0010 - 0x00
-					conv_byte_order(psized_val, size_bytes*SZ_BYTE, ORD_LE);
+					conv_byte_order(psized_val, size_bytes, ORD_LE);
 					//psized_val == 0b 1010 0010 | 0100 1100 | 1000 0000 - 0x00
 				}
 			}else{ //ORD_NAT_BYTE == ORD_LE
 				//psized_val == 0x45 | 0x23 | 0x01 - 0x00 -byte/bit memory layout
 				if(bit_order == ORD_BE){
-					conv_byte_order(psized_val, size_bytes*SZ_BYTE, ORD_BE);
+					conv_byte_order(psized_val, size_bytes, ORD_BE);
 					//psized_val == 0x01 | 0x23 | 0x45 - 0x00
 					char shift_count = size_bytes*SZ_BYTE - size; //printf("shift_count: %d\n", shift_count);
 					//shift_count == 3
@@ -406,7 +398,7 @@ pbitstring_t bitstring_new_sint(
 @arg "size" Bitstring size (32, 64).
 @arg "fp_rep" Floating point representation (see header for list of possible
 	values).
-@NOTE: Currently IEEE754 format is supported with 32 and 64bit sizes.
+@note Currently IEEE754 format is supported with 32 and 64bit sizes.
 */
 pbitstring_t bitstring_new_fp(
 		fp_t val, unsigned int size, char fp_rep, 
@@ -420,13 +412,13 @@ pbitstring_t bitstring_new_fp(
 	
 	if(size == 32){
 		float new_val = (float)val;
-		unsigned int size = sizeof(float)*SZ_BYTE;
-		conv_byte_bit_order((char*)&new_val, size, byte_order, bit_order);
+		unsigned int size_bytes = sizeof(float);
+		conv_byte_bit_order((char*)&new_val, size_bytes, byte_order, bit_order);
 		bitstring_set(pbs, &new_val, size);
 	}else if(size == 64){
 		double new_val = (double)val;
-		unsigned int size = sizeof(float)*SZ_BYTE;
-		conv_byte_bit_order((char*)&new_val, size, byte_order, bit_order);
+		unsigned int size_bytes = sizeof(float);
+		conv_byte_bit_order((char*)&new_val, size_bytes, byte_order, bit_order);
 		bitstring_set(pbs, &new_val, size);
 	}else{
 		print_warning("Only 32b/64b fps are supported\n");
