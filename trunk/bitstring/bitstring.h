@@ -6,7 +6,7 @@
 /*
 @desc Used internally for forward allocation of bitstring.data
 */
-#define BSTR_DATA_SZ 1024
+#define BSTR_DATA_SZ 128
 
 /*
 @desc Common sizes.
@@ -67,6 +67,7 @@ void bitstring_del(pbitstring_t pbs);
 char bitstring_get_bit(pbitstring_t pbs, int pos);
 void bitstring_append_bit(pbitstring_t pbs, char append_bit);
 pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src);
+pbitstring_t bitstring_concat(pbitstring_t src1, pbitstring_t src2);
 void bitstring_print(FILE *fp, pbitstring_t pbs);
 pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size);
 pbitstring_t bitstring_new_uint(uint_t val, unsigned int size, char byte_order, char bit_order);

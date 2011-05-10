@@ -2,7 +2,9 @@
 #include <lua5.1/lualib.h>
 #include <lua5.1/lauxlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 #include <bitstring.h>
 
 /*
@@ -16,7 +18,7 @@ int new_uint(lua_State *L){
 	char byte_order = luaL_checknumber(L,3); //byte order
 	char bit_order = luaL_checknumber(L,4); //byte order
 	
-	printf("%d,%d,%d,%d\n", (unsigned int)val, size, byte_order, bit_order);
+	//printf("%d,%d,%d,%d\n", (unsigned int)val, size, byte_order, bit_order);
 	
 	pbitstring_t pbs = bitstring_new_uint(val, size, byte_order, bit_order);
 	pbitstring_t* ppbs = lua_newuserdata(L, sizeof(pbitstring_t));
@@ -34,7 +36,7 @@ int new_sint(lua_State *L){
 	char byte_order = luaL_checknumber(L,3); //byte order
 	char bit_order = luaL_checknumber(L,4); //byte order
 	
-	printf("%d,%d,%d,%d\n", (signed int)val, size, byte_order, bit_order);
+	//printf("%d,%d,%d,%d\n", (signed int)val, size, byte_order, bit_order);
 	
 	pbitstring_t pbs = bitstring_new_sint(val, size, byte_order, bit_order);
 	pbitstring_t* ppbs = lua_newuserdata(L, sizeof(pbitstring_t));
@@ -53,7 +55,7 @@ int new_fp(lua_State *L){
 	char byte_order = luaL_checknumber(L,4); //byte order
 	char bit_order = luaL_checknumber(L,5); //bit order
 
-	printf("%f,%d,%d\n", val, size, fp_rep);
+	//printf("%f,%d,%d\n", val, size, fp_rep);
 	
 	pbitstring_t pbs = bitstring_new_fp(val, size, fp_rep, byte_order, bit_order);
 	pbitstring_t* ppbs = lua_newuserdata(L, sizeof(pbitstring_t));
@@ -69,7 +71,7 @@ int new_fp(lua_State *L){
 */
 
 int delete(lua_State *L){
-	printf("delete...\n");
+	//printf("delete...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
@@ -82,7 +84,7 @@ int delete(lua_State *L){
 Indexing starts with 1.
 */
 int get_bit(lua_State *L){
-	printf("get bit...\n");
+	//printf("get bit...\n");
 	
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
@@ -100,25 +102,25 @@ int get_bit(lua_State *L){
 }
 
 int get_byte(lua_State *L){
-	printf("get_byte...\n");
+	//printf("get_byte...\n");
 	return 0;
 }
 
 int append_bit(lua_State *L){
-	printf("append_bit...\n");
+	//printf("append_bit...\n");
 	
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
 	
 	char bit = luaL_checknumber(L, 2);
-	printf("%d\n", bit);
+	//printf("%d\n", bit);
 	bitstring_append_bit(pbs, bit);
 	
 	return 0;
 }
 
 int append(lua_State *L){
-	printf("append...\n");
+	//printf("append...\n");
 	
 	pbitstring_t *ppbs_dest = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs_dest = *ppbs_dest;
@@ -130,18 +132,53 @@ int append(lua_State *L){
 	return 0;
 }
 
-int dump(lua_State *L){
-	printf("dump...\n");
+int concat(lua_State *L){
+	//printf("concat...\n");
+	
+	pbitstring_t *ppbs_src1 = luaL_checkudata(L, 1, "bitstring");
+	pbitstring_t pbs_src1 = *ppbs_src1;
+	
+	pbitstring_t *ppbs_src2 = luaL_checkudata(L, 2, "bitstring");
+	pbitstring_t pbs_src2 = *ppbs_src2;
+	
+	pbitstring_t pbs_dest = bitstring_concat(pbs_src1, pbs_src2);
+
+	pbitstring_t* ppbs = lua_newuserdata(L, sizeof(pbitstring_t));
+	*ppbs = pbs_dest;
+	
+	luaL_getmetatable(L, "bitstring");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int tostring(lua_State *L){
+	//printf("tostring...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
 	
-	bitstring_print(stdout, pbs);
-	return 0;
+	/*bitstring dump: 0b 010101...\0*/
+	unsigned int bs_str_size = 2+pbs->size+1;
+	char* bs_str = (char*)malloc(bs_str_size);
+	if(bs_str == NULL){
+		fprintf(stderr, "tostring: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	sprintf(bs_str, "0b");
+	for(int i=0; i<pbs->size; i++){
+		sprintf(bs_str+i+2, "%d", bitstring_get_bit(pbs, i));
+	}
+	*(bs_str+pbs->size+2) = 0;
+
+	lua_pushstring(L, bs_str);
+	
+	free(bs_str);
+	return 1;
 }
 
 int size(lua_State *L){
-	printf("size...\n");
+	//printf("size...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
@@ -151,7 +188,7 @@ int size(lua_State *L){
 }
 
 int set(lua_State *L){
-	printf("set...\n");
+	//printf("set...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
@@ -166,7 +203,7 @@ int set(lua_State *L){
 }
 
 int get(lua_State *L){
-	printf("get...\n");
+	//printf("get...\n");
 
 	pbitstring_t *ppbs = luaL_checkudata(L, 1, "bitstring");
 	pbitstring_t pbs = *ppbs;
@@ -198,9 +235,9 @@ int luaopen_bitstring(lua_State *L){
 		{"append", append},
 		{"set", set},
 		{"get", get},
-		{"__concat", append},
+		{"__concat", concat},
 		{"__gc", delete},
-		{"__tostring", dump},
+		{"__tostring", tostring},
 		{"__len", size},
 		{NULL, NULL}
 	};

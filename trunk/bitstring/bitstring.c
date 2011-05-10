@@ -167,6 +167,17 @@ pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src){
 }
 
 /*
+@desc Concatenate two bitstrings into a new one.
+*/
+pbitstring_t bitstring_concat(pbitstring_t src1, pbitstring_t src2){
+	pbitstring_t dest = bitstring_new();
+	bitstring_append(dest, src1);
+	bitstring_append(dest, src2);
+	
+	return dest;
+}
+
+/*
 @desc Prints a bitstring into a file.
 */
 void bitstring_print(FILE* fp, pbitstring_t pbs){
