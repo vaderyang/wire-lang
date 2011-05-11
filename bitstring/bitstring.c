@@ -223,6 +223,8 @@ void conv_byte_order(void* pval, unsigned int size_bytes, char byte_order){
 		pnew--;
 		pold++;
 	}
+	
+	free(pold_val);
 }
 
 /*
@@ -269,7 +271,9 @@ void conv_byte_bit_order(
 			pnew--;
 			pold++;
 		}
-	}	
+	}
+	
+	free(pold_val);	
 }
 
 /*
@@ -322,12 +326,12 @@ pbitstring_t bitstring_new_uint(
 	
 	/*align the value in uint_t sized (for later casting) memory container*/
 	char *psized_val = (char*)malloc(sizeof(uint_t));
-	*((uint_t*)psized_val) = 0;
-	
 	if(psized_val == NULL){
 		print_error("bitstring_new_uint: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
+	*((uint_t*)psized_val) = 0;
+	
 	if(ORD_NAT_BYTE == ORD_LE){
 		memcpy(psized_val, &val, size_bytes);
 	}else //ORD_NAT_BYTE == ORD_BE
@@ -389,7 +393,7 @@ pbitstring_t bitstring_new_uint(
 	}
 	
 	bitstring_set(pbs, psized_val, size);
-		
+	free(psized_val);	
 	return pbs;
 }
 

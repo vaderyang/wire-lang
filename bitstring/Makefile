@@ -1,21 +1,25 @@
 CC=gcc
-C_FLAGS=-std=c99 -Wall
+C_OPTS=-std=c99
+WARN_OPTS=-Wall
+DBG_OPTS=-ggdb
+OPTMZ_OPTS=
+DIR_OPTS=-I./ -L./
+COMPILE=$(CC) $(DIR_OPTS) $(LNK_OPTS) $(C_OPTS) $(WARN_OPTS) $(DBG_OPTS) $(OPTMZ_OPTS)
+AR=ar rcs
 
-all: test_bitstring
+all: libbitstring.a libbitstring.so test
 
-#UTILS
-utils.o: utils.c utils.h
-	$(CC) $(C_FLAGS) -c utils.c -o utils.o
-	
-#BITSTRING
-libbitstring.so: utils.o bitstring.c bitstring.h
-	$(CC) $(C_FLAGS) -o libbitstring.so -shared utils.o bitstring.c
+libbitstring.a: utils.c bitstring.c
+	$(COMPILE) -c utils.c -o utils.o
+	$(COMPILE) -c bitstring.c -o bitstring.o
+	$(AR) libbitstring.a bitstring.o utils.o
 
-test_bitstring: clean utils.o libbitstring.so test_bitstring.c
-	$(CC) $(C_FLAGS) -c test_bitstring.c -o test_bitstring.o
-	$(CC) $(C_FLAGS) utils.o ./libbitstring.so test_bitstring.o -o test_bitstring
+libbitstring.so: utils.c bitstring.c
+	$(COMPILE) utils.c bitstring.c -shared -o libbitstring.so
+
+test:
+	$(COMPILE) utils.c bitstring.c test_bitstring.c -o test_bitstring
 	./test_bitstring
 
-#CLEAN
 clean:
 	rm -f test_bitstring *~ *.o *.a *.so
