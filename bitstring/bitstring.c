@@ -159,7 +159,7 @@ pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src){
 		appended_bits += (src->size/SZ_BYTE)*SZ_BYTE;
 		dest->size += appended_bits;
 	}
-	/*Take care of the bits that weren't bit aligned*/
+	/*Take care of the bits that weren't byte aligned*/
 	for(int i=appended_bits; i<src->size; i++){
 		bitstring_append_bit(dest, bitstring_get_bit(src, i));
 	}
@@ -277,17 +277,21 @@ void conv_byte_bit_order(
 }
 
 /*
-@desc Shifts bits to the left in a byte array.
+@desc Shifts bits to the left in a byte array (little endian machines).
 @note This is a workaround for le machine integer shifts.
 @example: val_mem = 0x45 | 0x23 | 0x01 ->(shift 3)-> val_mem = 0x29 | 0x18 | 0x08 
 */
-void shift_left_le(char* pval, unsigned int size_bytes, char shift_count){
+void shift_left_le(char* pval, unsigned int size_bytes, unsigned int shift_count){
+	if(shift_count == 0){
+		return;
+	}
+
 	//val = 0x12345 val_mem = 0x45 | 0x23 | 0x01 - 0x00
 	//shift_count = 3 size_bytes = 3
-	short int two_bytes = 0;
+	unsigned short int two_bytes = 0;
 	for(int i=0; i<size_bytes; i++){
 		//i=1
-		two_bytes = pval[i];
+		two_bytes = (unsigned char)pval[i]; //this was an issue!!!
 		//two_bytes = 0x0023 two_bytes_mem = 0x23 | 0x00
 		two_bytes = two_bytes << shift_count;
 		//two_bytes = 0x00118 two_bytes_mem = 0x18 | 0x01
@@ -297,6 +301,47 @@ void shift_left_le(char* pval, unsigned int size_bytes, char shift_count){
 			pval[i-1] |= *((char*)&two_bytes+1);
 			//pval[0] = 0x28 | 0x01 = 0x29
 		}
+	}
+}
+
+/*
+@desc Shifts bits to the left in a byte array (big endian machines).
+@TODO: check
+*/
+void shift_left_be(char* pval, unsigned int size_bytes, unsigned int shift_count){
+	//val = 0x123456789a val_mem = 0x12 | 0x34 | 0x56 | 0x78 | 0x9a
+	//shift_count = 3 size_bytes = 5
+	unsigned short int two_bytes = 0;
+	for(int i=0; i<size_bytes/sizeof(long); i+=sizeof(long)){
+		*((unsigned long int*)pval) <<= shift_count;
+		//val_mem = 0x91 | 0xA2 | 0xB3 | 0xC0 | 0x9a
+		two_bytes = pval[i+sizeof(long)];
+		//two_bytes = 0x009a two_bytes_mem = 0x00 | 0x9a
+		two_bytes <<= shift_count;
+		//two_bytes = 0x04d0 two_bytes_mem = 0x04 | 0xd0
+		pval[i+sizeof(long)-1] |= *((char*)&two_bytes);
+		//0xc0 | 0x04 = 0xc4
+		//val_mem = 0x91 | 0xA2 | 0xB3 | 0xC4 | 0x9a
+	}
+	for(int i=(size_bytes/sizeof(long))*sizeof(long); i<size_bytes; i++){
+		//i=4
+		two_bytes = pval[i];
+		//two_bytes = 0x009a two_bytes_mem = 0x00 | 0x9a
+		two_bytes = two_bytes << shift_count;
+		//two_bytes = 0x04d0 two_bytes_mem = 0x04 | 0xd0
+		pval[i] = *((char*)&two_bytes+1);
+		//pval[4] = 0xd0
+		if(i>(size_bytes/sizeof(long))*sizeof(long)){
+			pval[i-1] |= *((char*)&two_bytes);
+		}
+	}
+}
+
+void shift_left(char* pval, unsigned int size_bytes, unsigned int shift_count){
+	if(ORD_NAT_BYTE == ORD_LE){
+		shift_left_le(pval, size_bytes, shift_count);
+	}else{ //ORD_NAT_BYTE == ORD_BE
+		shift_left_be(pval, size_bytes, shift_count);
 	}
 }
 
@@ -374,7 +419,7 @@ pbitstring_t bitstring_new_uint(
 			}else{ //ORD_NAT_BYTE == ORD_LE
 				//psized_val == 0x45 | 0x23 | 0x01 - 0x00 -byte/bit memory layout
 				if(bit_order == ORD_BE){
-					conv_byte_order(psized_val, size_bytes, ORD_BE);
+					conv_byte_order(psized_val, size_bytes, ORD_BE); //reverse
 					//psized_val == 0x01 | 0x23 | 0x45 - 0x00
 					char shift_count = size_bytes*SZ_BYTE - size; //printf("shift_count: %d\n", shift_count);
 					//shift_count == 3
