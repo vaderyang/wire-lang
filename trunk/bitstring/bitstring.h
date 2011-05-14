@@ -80,7 +80,9 @@ pbitstring_t bitstring_new_fp(fp_t val, unsigned int size, char fp_rep, char byt
 void conv_byte_order(void* pval, unsigned int size_bytes, char byte_order);
 void conv_bit_order(char* pval, char bit_order);
 void conv_byte_bit_order(char* pval, unsigned int size_bytes, char byte_order, char bit_order);
-void shift_left_le(char* pval, unsigned int size_bytes, char shift_count);
+void shift_left_le(char* pval, unsigned int size_bytes, unsigned int shift_count);
+void shift_left_be(char* pval, unsigned int size_bytes, unsigned int shift_count);
+void shift_left(char* pval, unsigned int size_bytes, unsigned int shift_count);
 char get_native_byte_order();
 char get_native_bit_order();
 unsigned int get_native_long_int_sz();
