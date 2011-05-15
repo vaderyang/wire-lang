@@ -102,7 +102,7 @@ uint_t serdes_pull_uint(pserdes_t psd, unsigned int size, char byte_order, char 
 				}
 			}else{ //ORD_NAT_BYTE == ORD_LE
 				if(bit_order == ORD_BE){
-					char shift_count = size_bytes*SZ_BYTE - size;
+					unsigned int shift_count = size_bytes*SZ_BYTE - size;
 					shift_right_le(pbs->data, size_bytes, shift_count);
 					conv_byte_order(pbs->data, size_bytes, ORD_BE); //reverse
 				}else{//bit_order == ORD_LE
