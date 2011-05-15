@@ -291,7 +291,7 @@ void shift_left_le(char* pval, unsigned int size_bytes, unsigned int shift_count
 	unsigned short int two_bytes = 0;
 	for(int i=0; i<size_bytes; i++){
 		//i=1
-		two_bytes = (unsigned char)pval[i]; //this was an issue!!!
+		two_bytes = (unsigned char)pval[i]; //this was an issue!!! (0xff -> 0xffff)
 		//two_bytes = 0x0023 two_bytes_mem = 0x23 | 0x00
 		two_bytes = two_bytes << shift_count;
 		//two_bytes = 0x00118 two_bytes_mem = 0x18 | 0x01
@@ -342,6 +342,32 @@ void shift_left(char* pval, unsigned int size_bytes, unsigned int shift_count){
 		shift_left_le(pval, size_bytes, shift_count);
 	}else{ //ORD_NAT_BYTE == ORD_BE
 		shift_left_be(pval, size_bytes, shift_count);
+	}
+}
+
+/*
+@desc Shifts bits to the right in a byte array (little endian machines).
+@note This is a workaround for le machine integer shifts.
+*/
+void shift_right_le(char* pval, unsigned int size_bytes, unsigned int shift_count){
+	if(shift_count == 0){
+		return;
+	}
+
+	//val = 0x12345 val_mem = 0x45 | 0x23 | 0x01 - 0x00
+	//shift_count = 3 size_bytes = 3
+	unsigned short int two_bytes = 0;
+	char shifted = 0;
+	for(int i=0; i<size_bytes; i++){
+		//i=1
+		*((char*)&two_bytes+1) = (unsigned char)pval[i]; //this was an issue!!! (0xff -> 0xffff)
+		//two_bytes = 0x2300 two_bytes_mem = 0x00 | 0x23
+		two_bytes = two_bytes >> shift_count;
+		//two_bytes = 0x0460 two_bytes_mem = 0x60 | 0x04
+		pval[i] = *((char*)&two_bytes+1) | shifted;
+		//pval[1] = 0x04
+		shifted = *((char*)&two_bytes);
+		//shifted = 0x60
 	}
 }
 
