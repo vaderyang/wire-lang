@@ -89,10 +89,26 @@ uint_t serdes_pull_uint(pserdes_t psd, unsigned int size, char byte_order, char 
 
 	pbitstring_t pbs = serdes_pull_bitstring(psd, size);
 
+	//pval_des will have the memory layout of the value that was serialized
+	char* pval_des = (char*)malloc(sizeof(uint_t));
+	char *pdata;
+	if(pval_des == NULL){
+		print_error("serdes_pull_uint: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
+	}
+	if(ORD_NAT_BYTE == ORD_LE){
+		memcpy(pval_des, pbs->data, size_bytes);
+		pdata = pval_des;
+	}else{ //ORD_NAT_BYTE == ORD_BE
+		memcpy(pval_des + sizeof(uint_t) - size_bytes, pbs->data, size_bytes);
+		pdata = pval_des + sizeof(uint_t) - size_bytes;
+	}
+	bitstring_del(pbs);
+	
 	uint_t val = 0;
 
 	if(byte_order != ORD_NONE){ //byte oriented (byte unit)
-		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
+		conv_byte_bit_order(pdata, size_bytes, byte_order, bit_order);
 	}else{ //bit oriented (bit unit)
 		if(ORD_NAT_BIT == ORD_BE){ 
 			if(ORD_NAT_BYTE == ORD_BE){
@@ -103,12 +119,11 @@ uint_t serdes_pull_uint(pserdes_t psd, unsigned int size, char byte_order, char 
 			}else{ //ORD_NAT_BYTE == ORD_LE
 				if(bit_order == ORD_BE){
 					unsigned int shift_count = size_bytes*SZ_BYTE - size;
-					shift_right_le(pbs->data, size_bytes, shift_count);
-					conv_byte_order(pbs->data, size_bytes, ORD_BE); //reverse
+					shift_right_le(pdata, size_bytes, shift_count);
+					conv_byte_order(pdata, size_bytes, ORD_BE); //reverse
 				}else{//bit_order == ORD_LE
-					//val_ser = 0b1010 0010 | 1100 0100 | 1000 0 - 000 val_ser_mem = 
 					for(int i=0; i<size_bytes; i++){
-						conv_bit_order(pbs->data+i, ORD_LE); //reverse
+						conv_bit_order(pdata+i, ORD_LE); //reverse
 					}
 				}
 			}	
@@ -117,14 +132,23 @@ uint_t serdes_pull_uint(pserdes_t psd, unsigned int size, char byte_order, char 
 		}
 	}
 	
-	val = *((uint_t*)pbs->data);
-	bitstring_print(stdout, pbs);
-	bitstring_del(pbs);		
+	val = *((uint_t*)pval_des);
+	free(pval_des);
+
 	return val;
 }
 
 sint_t serdes_pull_sint(pserdes_t psd, unsigned int size, char byte_order, char bit_order){
-	return 0;
+	uint_t val = serdes_pull_uint(psd, size, byte_order, bit_order);
+
+	if(val&(1<<(size-1))){
+		uint_t mask = -1;
+		mask <<= size;
+		printf("%.8x\n", mask);
+		val |= mask;
+	}
+
+	return val;
 }
 
 fp_t serdes_pull_fp(pserdes_t psd, unsigned int size, char fp_rep, char byte_order, char bit_order){
