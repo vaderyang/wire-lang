@@ -90,12 +90,13 @@ void bitstring_del(pbitstring_t pbs){
 
 /*
 @desc Sets bitstrings data and size. Handles allocation and error handling.
+@note Bits from >=size are cleared.
 */
 pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 	unsigned int size_bytes = size/SZ_BYTE;
 	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
 
-	pbs->data = malloc(size_bytes + BSTR_DATA_SZ);
+	pbs->data = calloc(size_bytes + BSTR_DATA_SZ, 1);
 	if(pbs->data == NULL){
 		print_error("bitstring_set: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
@@ -103,7 +104,10 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 	pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
 
 	memcpy(pbs->data, data, size_bytes);
-
+	//clear the last bits from the last byte
+	unsigned char mask = 0xff<<((SZ_BYTE - size%SZ_BYTE)%SZ_BYTE);
+	pbs->data[size_bytes-1] &= mask;
+	
 	pbs->size = size;
 
 	return pbs;
@@ -353,13 +357,12 @@ void shift_right_le(char* pval, unsigned int size_bytes, unsigned int shift_coun
 	if(shift_count == 0){
 		return;
 	}
-
-	//val = 0x12345 val_mem = 0x45 | 0x23 | 0x01 - 0x00
 	//shift_count = 3 size_bytes = 3
 	unsigned short int two_bytes = 0;
 	char shifted = 0;
 	for(int i=0; i<size_bytes; i++){
 		//i=1
+		*((char*)&two_bytes) = 0;
 		*((char*)&two_bytes+1) = (unsigned char)pval[i]; //this was an issue!!! (0xff -> 0xffff)
 		//two_bytes = 0x2300 two_bytes_mem = 0x00 | 0x23
 		two_bytes = two_bytes >> shift_count;
