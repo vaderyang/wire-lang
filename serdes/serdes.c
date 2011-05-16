@@ -19,6 +19,7 @@ pserdes_t serdes_new(){
 }
 
 void serdes_del(pserdes_t psd){
+    bitstring_del(psd->pbs);
 	free(psd);
 }
 
