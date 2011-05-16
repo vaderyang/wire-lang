@@ -80,6 +80,11 @@ pbitstring_t bitstring_new(){
 	return pbs;
 }
 
+pbitstring_t bitstring_copy(pbitstring_t pbs_src){
+    pbitstring_t pbs = bitstring_new();
+    bitstring_set(pbs, pbs_src->data, pbs_src->size);
+    return pbs;
+}
 /*
 @desc Deletes a bitstring.
 */
