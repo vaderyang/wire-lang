@@ -8,6 +8,9 @@ typedef struct serdes serdes_t;
 typedef serdes_t* pserdes_t;
 
 pserdes_t serdes_new();
+/*
+@desc Sets the bitstring (copy) and the initial position.
+*/
 void serdes_set(pserdes_t psd, pbitstring_t pbs, unsigned int pos);
 void serdes_del(pserdes_t psd);
 

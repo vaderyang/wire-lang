@@ -14,7 +14,7 @@ pserdes_t serdes_new(){
 	}
 	psd->pbs = NULL;
 	psd->pos = 0;
-	
+
 	return psd;
 }
 
@@ -23,7 +23,7 @@ void serdes_del(pserdes_t psd){
 }
 
 void serdes_set(pserdes_t psd, pbitstring_t pbs, unsigned int pos){
-	psd->pbs = pbs;
+	psd->pbs = bitstring_copy(pbs);
 	psd->pos = pos;
 }
 
@@ -31,7 +31,7 @@ void serdes_push_bitstring(pserdes_t psd, pbitstring_t pbs){
 	if(psd->pbs == NULL){
 		psd->pbs = bitstring_new();
 	}
-	
+
 	bitstring_append(psd->pbs, pbs);
 	psd->pos += pbs->size;
 }
@@ -52,7 +52,7 @@ void serdes_push_fp(pserdes_t psd, fp_t val, unsigned int size, char fp_rep, cha
 }
 
 pbitstring_t serdes_pull_bitstring(pserdes_t psd, unsigned int size){
-	//pbs = 0x12 | 0x34 | 0x56 
+	//pbs = 0x12 | 0x34 | 0x56
 	//pos = 7
 	//size = 13
 	unsigned int pos_end_byte = (psd->pos + size - 1)/SZ_BYTE; //end = 2
@@ -60,24 +60,24 @@ pbitstring_t serdes_pull_bitstring(pserdes_t psd, unsigned int size){
 	unsigned int size_bytes = pos_end_byte - pos_start_byte + 1; //size_bytes = 3
 
 	pbitstring_t pbs = bitstring_new();
-	
+
 	char *pval_ser = (char*)malloc(sizeof(size_bytes));
 	if(pval_ser == NULL){
 		print_error("serdes_pull_bitstring: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	printf("pos: %d size: %d end: %d start: %d\n", psd->pos, size_bytes, pos_end_byte, pos_start_byte);
-	memcpy(pval_ser, psd->pbs->data+pos_start_byte, size_bytes); 
+	memcpy(pval_ser, psd->pbs->data+pos_start_byte, size_bytes);
 	//pval_ser = 0x12 | 0x34 | 0x56
 	shift_left(pval_ser, size_bytes, psd->pos%SZ_BYTE);
 	//pval_ser = 0x1A | 0x2B | 0x00
 	bitstring_set(pbs, pval_ser, size);
 
 	free(pval_ser);
-	
+
 	psd->pos += size;
-	
+
 	print_debug("[PULL]");
 	bitstring_print(stdout, pbs);
 	return pbs;
@@ -104,13 +104,13 @@ uint_t serdes_pull_uint(pserdes_t psd, unsigned int size, char byte_order, char 
 		pdata = pval_des + sizeof(uint_t) - size_bytes;
 	}
 	bitstring_del(pbs);
-	
+
 	uint_t val = 0;
 
 	if(byte_order != ORD_NONE){ //byte oriented (byte unit)
 		conv_byte_bit_order(pdata, size_bytes, byte_order, bit_order);
 	}else{ //bit oriented (bit unit)
-		if(ORD_NAT_BIT == ORD_BE){ 
+		if(ORD_NAT_BIT == ORD_BE){
 			if(ORD_NAT_BYTE == ORD_BE){
 				if(bit_order == ORD_BE){
 				}
@@ -126,12 +126,12 @@ uint_t serdes_pull_uint(pserdes_t psd, unsigned int size, char byte_order, char 
 						conv_bit_order(pdata+i, ORD_LE); //reverse
 					}
 				}
-			}	
+			}
 		}else{ //ORD_NAT_BIT == ORD_LE
 			//TODO: implement deserialization for LE bit order machines (if exists one)
 		}
 	}
-	
+
 	val = *((uint_t*)pval_des);
 	free(pval_des);
 
@@ -157,7 +157,7 @@ fp_t serdes_pull_fp(pserdes_t psd, unsigned int size, char fp_rep, char byte_ord
 
 	pbitstring_t pbs = serdes_pull_bitstring(psd, size);;
 	fp_t val = 0;
-	
+
 	if(size == sizeof(float)*SZ_BYTE){
 		unsigned int size_bytes = sizeof(float);
 		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
@@ -166,11 +166,10 @@ fp_t serdes_pull_fp(pserdes_t psd, unsigned int size, char fp_rep, char byte_ord
 		unsigned int size_bytes = sizeof(double);
 		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
 		val = *((double*)pbs->data);
-		//printf("--%f\n", val);
 	}else{
 		print_warning("Only 32b/64b fps are supported\n");
 	}
-	
+
 	bitstring_del(pbs);
 	return val;
 }
