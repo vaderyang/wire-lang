@@ -70,6 +70,7 @@ pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src);
 pbitstring_t bitstring_concat(pbitstring_t src1, pbitstring_t src2);
 void bitstring_print(FILE *fp, pbitstring_t pbs);
 pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size);
+pbitstring_t bitstring_copy(pbitstring_t pbs_src);
 pbitstring_t bitstring_new_uint(uint_t val, unsigned int size, char byte_order, char bit_order);
 pbitstring_t bitstring_new_sint(sint_t val, unsigned int size, char byte_order, char bit_order);
 pbitstring_t bitstring_new_fp(fp_t val, unsigned int size, char fp_rep, char byte_order, char bit_order);
