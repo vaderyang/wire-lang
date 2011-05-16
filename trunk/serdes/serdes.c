@@ -158,11 +158,11 @@ fp_t serdes_pull_fp(pserdes_t psd, unsigned int size, char fp_rep, char byte_ord
 	pbitstring_t pbs = serdes_pull_bitstring(psd, size);;
 	fp_t val = 0;
 	
-	if(size == 32){
+	if(size == sizeof(float)*SZ_BYTE){
 		unsigned int size_bytes = sizeof(float);
 		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
 		val = *((float*)pbs->data);
-	}else if(size == 64){
+	}else if(size == sizeof(double)*SZ_BYTE){
 		unsigned int size_bytes = sizeof(double);
 		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
 		val = *((double*)pbs->data);
