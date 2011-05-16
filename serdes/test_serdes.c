@@ -18,6 +18,15 @@ int main(){
 	serdes_push_uint(psd_push, 0x12345678, SZ_LONG, ORD_LE, ORD_LE);
 	serdes_push_uint(psd_push, 0x12345678, SZ_LONG, ORD_BE, ORD_LE);
 
+	serdes_push_fp(psd_push, 3.14, SZ_LONG, FP_IEEE754, ORD_LE, ORD_BE);
+	serdes_push_fp(psd_push, 3.14, SZ_LONG, FP_IEEE754, ORD_BE, ORD_BE);
+	serdes_push_fp(psd_push, 3.14, SZ_LONG, FP_IEEE754, ORD_LE, ORD_LE);
+	serdes_push_fp(psd_push, 3.14, SZ_LONG, FP_IEEE754, ORD_BE, ORD_LE);
+	
+	serdes_push_fp(psd_push, 3.14, SZ_LONG*2, FP_IEEE754, ORD_LE, ORD_BE);
+	serdes_push_fp(psd_push, 3.14, SZ_LONG*2, FP_IEEE754, ORD_BE, ORD_BE);
+	serdes_push_fp(psd_push, 3.14, SZ_LONG*2, FP_IEEE754, ORD_LE, ORD_LE);
+	serdes_push_fp(psd_push, 3.14, SZ_LONG*2, FP_IEEE754, ORD_BE, ORD_LE);
 	
 	pserdes_t psd_pull = serdes_new();
 	serdes_set(psd_pull, psd_push->pbs, 0);
@@ -37,5 +46,15 @@ int main(){
 	fprintf(stdout, "0x%.8x\n", serdes_pull_uint(psd_pull, SZ_LONG, ORD_LE, ORD_LE));
 	fprintf(stdout, "0x%.8x\n", serdes_pull_uint(psd_pull, SZ_LONG, ORD_BE, ORD_LE));
 
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG, FP_IEEE754, ORD_LE, ORD_BE));
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG, FP_IEEE754, ORD_BE, ORD_BE));
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG, FP_IEEE754, ORD_LE, ORD_LE));
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG, FP_IEEE754, ORD_BE, ORD_LE));
+
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG*2, FP_IEEE754, ORD_LE, ORD_BE));
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG*2, FP_IEEE754, ORD_BE, ORD_BE));
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG*2, FP_IEEE754, ORD_LE, ORD_LE));
+	fprintf(stdout, "%f\n", serdes_pull_fp(psd_pull, SZ_LONG*2, FP_IEEE754, ORD_BE, ORD_LE));
+	
 	return 0;
 }

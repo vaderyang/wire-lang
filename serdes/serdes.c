@@ -144,7 +144,6 @@ sint_t serdes_pull_sint(pserdes_t psd, unsigned int size, char byte_order, char 
 	if(val&(1<<(size-1))){
 		uint_t mask = -1;
 		mask <<= size;
-		printf("%.8x\n", mask);
 		val |= mask;
 	}
 
@@ -152,5 +151,26 @@ sint_t serdes_pull_sint(pserdes_t psd, unsigned int size, char byte_order, char 
 }
 
 fp_t serdes_pull_fp(pserdes_t psd, unsigned int size, char fp_rep, char byte_order, char bit_order){
-	return 0;
+	if(fp_rep != FP_IEEE754){
+		print_warning("Only IEEE754 fp representation is supported!\n");
+	}
+
+	pbitstring_t pbs = serdes_pull_bitstring(psd, size);;
+	fp_t val = 0;
+	
+	if(size == 32){
+		unsigned int size_bytes = sizeof(float);
+		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
+		val = *((float*)pbs->data);
+	}else if(size == 64){
+		unsigned int size_bytes = sizeof(double);
+		conv_byte_bit_order(pbs->data, size_bytes, byte_order, bit_order);
+		val = *((double*)pbs->data);
+		//printf("--%f\n", val);
+	}else{
+		print_warning("Only 32b/64b fps are supported\n");
+	}
+	
+	bitstring_del(pbs);
+	return val;
 }
