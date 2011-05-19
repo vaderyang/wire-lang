@@ -68,7 +68,7 @@ pbitstring_t serdes_pull_bitstring(pserdes_t psd, unsigned int size){
 		exit(EXIT_FAILURE);
 	}
 
-	printf("pos: %d size: %d end: %d start: %d\n", psd->pos, size_bytes, pos_end_byte, pos_start_byte);
+	//printf("pos: %d size: %d end: %d start: %d\n", psd->pos, size_bytes, pos_end_byte, pos_start_byte);
 	memcpy(pval_ser, psd->pbs->data+pos_start_byte, size_bytes);
 	//pval_ser = 0x12 | 0x34 | 0x56
 	shift_left(pval_ser, size_bytes, psd->pos%SZ_BYTE);
