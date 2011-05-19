@@ -17,12 +17,12 @@ FP_VAX  = 3
 --INT TEST, BYTE/BIT ORDERING*/
 print("INT TEST, BYTE/BIT ORDERING");
 
-for i=20,32,1 do 
+for i=20,32,1 do
 	pbs1 = bitstring.new_uint(0x12345, i, ORD_NONE, ORD_BE);
 	print(pbs1);
 end
 
-for i=20,32,1 do 
+for i=20,32,1 do
 	pbs1 = bitstring.new_uint(0x12345, i, ORD_NONE, ORD_LE);
 	print(pbs1);
 end

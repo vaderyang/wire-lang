@@ -213,7 +213,7 @@ int get(lua_State *L){
 	
 	lua_pushlstring(L, pbs->data, size_bytes);
 	lua_pushnumber(L, pbs->size);
-	return 1;
+	return 2;
 }
 
 /*
