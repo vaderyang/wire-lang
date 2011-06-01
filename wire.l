@@ -8,6 +8,9 @@
 #include "wire_lex.h" //lex utils
 #include "wire_ast.h" //so wire.tab.h has a definition of pnode_t
 #include "wire.tab.h" //tokens
+
+int yyparse();
+
 #define YYDEBUG 1
 %}
 
@@ -44,7 +47,7 @@ STRING_CONST (\"[\40-\176]*\")
 
 {REAL_CONST} {
 		yylval.text = strdup(yytext);
-		print_debug("REAL_CONST: %s\n",yylval.text);		
+		print_debug("REAL_CONST: %s\n",yylval.text);
 		return tREALCONST;
 	}
 

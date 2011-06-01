@@ -1,96 +1,139 @@
-/*1.2 SCOPES*/
-enum scopes {
-	PROTOCOL,
-	STRUCTURE,
-	UNION,
-	OPERATION
-};
+#include "wire_ast.h"
+#include "wire_utils.h"
+#include "wire_var.h"
+#include <malloc.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-struct scope {
-	int type;
-	char* name;
-	psymlist syms;
-};
+/*SYMBOLS*/
+psymbol_t symbol_new(pnode_t declarator){
+	psymbol_t psym = (psymbol_t)malloc(sizeof(symbol_t));
+	if(psym == NULL){
+		print_error("symbol_new: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
+	}
 
-typedef struct scope scope_t;
-typedef scope_t* pscope_t;
+	psym->declarator = declarator;
+	return psym;
+}
 
-pscope_t new_scope(int type, char* name);
+void symbol_del(psymbol_t psym){
+	free(psym);
+}
 
-pscope_t new_scope(int type, char* name){
+/*SYMBOL LIST*/
+
+/*
+@note Allocs a symlist_t
+*/
+psymlist_t symlist_new(){
+	psymlist_t psl = (psymlist_t)malloc(sizeof(symlist_t));
+	if(psl == NULL){
+		print_error("symlist_new: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	psl->psym = NULL;
+	psl->psl_elem_next = NULL;
+	return psl;
+}
+
+/*
+@note Frees all the symbols as well.
+*/
+void symlist_del(psymlist_t psl){
+	psymlist_t psl_elem = psl;
+	psymlist_t psl_elem_prev = NULL;
+	while(psl_elem != NULL){
+		free(psl_elem->psym);
+		psl_elem_prev = psl_elem;
+		psl_elem = psl_elem->psl_elem_next;
+		free(psl_elem_prev);
+	}
+}
+
+/*
+@note psym needs to be allocated with symbol_new first.
+*/
+void symlist_add_sym(psymlist_t psl, psymbol_t psym){
+	if(psl->psym == NULL){//first symbol
+		psl->psym = psym;
+		return;
+	}
+
+	psymlist_t psl_elem = psl;
+	while(psl_elem->psl_elem_next != NULL){
+		psl_elem = psl_elem->psl_elem_next;
+	}
+
+	psl_elem->psl_elem_next = (psymlist_t)malloc(sizeof(symlist_t));
+	if(psl_elem->psl_elem_next == NULL){
+		print_error("symlist_add_sym: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
+	}
+	psl_elem->psl_elem_next->psym = psym;
+
+}
+
+/*SCOPES*/
+
+/*
+@note Makes it's own copy of "name"
+*/
+pscope_t scope_new(int type, char* name){
 	pscope_t pscope = (pscope_t)malloc(sizeof(scope_t));
-	
-	print_debug("new_scope: %s\n", name);
-	
+
+	print_debug("scope_new: %s\n", name);
+
 	if(pscope == NULL){
-		print_error("new_scope: Could not allocate space!\n");
+		print_error("scope_new: Could not allocate space!\n");
 		exit(1);
 	}
 	pscope->type = type;
-	pscope->name = name;
-	pscope->syms = NULL;
+	strncpy(pscope->name, name, SCOPE_NAME_LEN);
+	pscope->psyms = symlist_new();
 	return pscope;
 };
 
-void del_scope(pscope_t pscope){
-	del_symlist(pscope->symlist);
-	free(pscope); 
+/*
+@note Calls symlist_del.
+*/
+void scope_del(pscope_t pscope){
+	symlist_del(pscope->psyms);
+	free(pscope);
 }
 
-struct scope_stack {
-	pscope_t pscope;
-	struct scope_stack* prev;
-};
+void scope_add_sym(pscope_t pscope, psymbol_t psym){
+	symlist_add_sym(pscope->psyms, psym);
+}
 
-typedef struct scope_stack scope_stack_t;
-typedef scope_stack_t* pscope_stack_t;
-
+/*SCOPE STACK*/
 pscope_stack_t glob_pscope_stack = NULL;
 
-void push_scope(pscope_t pscope){
-	pscope_stack_t pscope_stack_prev = glob_pscope_stack;
+void scope_stack_push(pscope_t pscope){
+	pscope_stack_t pss_up = glob_pscope_stack;
 
-	print_debug("push_scope: %s\n", pscope->name);
-	
+	print_debug("scope_stack_push: %s\n", pscope->name);
+
 	glob_pscope_stack = (pscope_stack_t)malloc(sizeof(scope_stack_t));
 	if(glob_pscope_stack == NULL){
-		print_error("new_scope_stack: Could not allocate space!\n");
-		exit(1);
+		print_error("scope_stack_push: Could not allocate space!\n");
+		exit(EXIT_FAILURE);
 	}
-	glob_pscope_stack->prev = pscope_stack_prev;
+	glob_pscope_stack->pss_up = pss_up;
 	glob_pscope_stack->pscope = pscope;
 }
 
-pscope_t pull_scope(){
-	pscope_stack_t pscope_stack_prev = glob_pscope_stack->prev;
-	
-	print_debug("pull_scope: %s\n", glob_pscope_stack->pscope->name);	
-	
+pscope_t scope_stack_pull(){
+	pscope_t pscope_top = glob_pscope_stack->pscope;
+	pscope_stack_t pss_up = glob_pscope_stack->pss_up;
+
+	print_debug("scope_stack_pull: %s\n", pscope_top->name);
+
 	free(glob_pscope_stack);
-	glob_pscope_stack = pscope_stack_prev;
-}
+	glob_pscope_stack = pss_up;
 
-
-
-/*1.3 SYMBOLS*/
-
-struct symbol {
-	pnode_t declarator;
-	pscope_t scope;
-};
-
-typedef struct symbol symbol_t;
-typedef symbol_t* psymbol_t;
-
-struct symlist {
-	psymbol_t psymbol;
-	struct symlist* next;
-};
-
-typedef symlist symlist_t;
-typedef symlist* psymlist_t;
-
-psymlist_t add_sym(psymlist_t psymlist, psym_t psym){
-	
+	return pscope_top;
 }
 
