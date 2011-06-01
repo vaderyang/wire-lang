@@ -1,4 +1,4 @@
-%error-verbose 
+%error-verbose
 %debug
 
 %{
@@ -9,6 +9,9 @@
 #include "wire_ast.h"
 #include "wire_utils.h"
 #include "wire.tab.h"
+
+int yylex(void); //supress warning
+int yyerror(char const * msg);
 
 #if defined DBG_VERB_2
 int yydebug = 1;
@@ -125,7 +128,7 @@ int yydebug = 1;
 
 %start wire
 %%
-	wire: 
+	wire:
 		protocol {
 			print_debug("NICE\n");
 			$$ = new_wire($1);
@@ -155,7 +158,7 @@ int yydebug = 1;
 			$$ = $1;
 		}
 		;
-		
+
 	protocol_components:
 		protocol_component {
 			$$ = new_protocol_components($1);
@@ -165,7 +168,7 @@ int yydebug = 1;
 			$$ = add_child($1, $2);
 		}
 		;
-		
+
 	protocol_component:
 		global_declarator ';' {
 			$$ = $1;
@@ -174,10 +177,10 @@ int yydebug = 1;
 
 /*
     Attributes
-    
+
     Attributes can be assigned to every data type in wire. They provide various
     information about type's semantics, sizes and other.
-*/	
+*/
 
 	attributes_opt:
 		'[' attributes ']' {
@@ -188,7 +191,7 @@ int yydebug = 1;
 			$$ = NULL;
 		}
 		;
-	
+
 	attributes:
 		attribute {
 			$$ = new_attributes($1);
@@ -198,7 +201,7 @@ int yydebug = 1;
 			$$ = add_child($1, $3);
 		}
 		;
-	
+
 	attribute:
 		tIDENTIFIER {
 			$$ = new_attribute($1, NULL);
@@ -208,7 +211,7 @@ int yydebug = 1;
 			$$ = new_attribute($1, $3);
 		}
 		;
-	
+
 	attribute_arguments:
 		attribute_argument {
 			$$ = new_attribute_arguments($1);
@@ -218,7 +221,7 @@ int yydebug = 1;
 			$$ = add_child($1, $3);
 		}
 		;
-	
+
 	attribute_argument:
 		const_exp {
 			$$ = new_attribute_argument($1);
@@ -249,7 +252,7 @@ int yydebug = 1;
 		//|
 		//operation_declarator ';'
 		;
-	
+
 	local_declarator:
 		primitive_type_declarator {
 			$$ = $1;
@@ -259,7 +262,7 @@ int yydebug = 1;
 			$$ = $1;
 		}
 		;
-	
+
 	global_constructed_type_declarator:
 		global_enum_declarator {
 			$$ = $1;
@@ -271,13 +274,13 @@ int yydebug = 1;
 		//|
 		//global_union_declarator
 		;
-		
+
 	primitive_type_declarator:
 		attributes_opt primitive_type tIDENTIFIER array_declarator_opt {
 			$$ = new_primitive_type_declarator($1, $2, $3, $4);
 		}
 		;
-	
+
 	local_constructed_type_declarator:
 		local_enum_declarator {
 			$$ = $1;
@@ -291,20 +294,20 @@ int yydebug = 1;
 			$$ = $1;
 		}
 		;
-	
+
 	local_union_declarator:
 		attributes_opt tUNION '<' const_exp '>' '{' union_body '}' tIDENTIFIER array_declarator_opt {
 			$$ = new_local_union_declarator($1, $4, $7, $9, $10);
 		}
 		;
-	
+
 	local_declarator_list:
 		local_declarator ';' {
 			$$ = new_local_declarator_list($1);
 		}
 		|
 		local_declarator_list local_declarator ';' {
-			$$ = add_child($1, $2);		
+			$$ = add_child($1, $2);
 		}
 		;
 
@@ -323,13 +326,13 @@ int yydebug = 1;
 			$$ = new_local_enum_declarator_anon($1, $4, $6, $7);
 		}
         ;
-        
+
     local_enum_declarator_named:
 		attributes_opt tENUM tIDENTIFIER tIDENTIFIER array_declarator_opt {
 			$$ = new_local_enum_declarator_named($1, $3, $4, $5);
 		}
         ;
-            	
+
 	global_enum_declarator:
 		attributes_opt tENUM tIDENTIFIER '{' enum_body '}' {
 			$$ = new_global_enum_declarator($1, $3, $5);
@@ -341,7 +344,7 @@ int yydebug = 1;
 			$$ = new_typedef_declarator($2);
 		}
 		;
-	
+
 	local_struct_declarator:
     	local_struct_declarator_anon {
     	    $$ = $1;
@@ -363,7 +366,7 @@ int yydebug = 1;
 			$$ = new_local_struct_declarator_named($1, $3, $4, $5);
 		}
 		;
-	
+
 	global_struct_declarator:
 		attributes_opt tSTRUCT tIDENTIFIER '{' struct_body '}' {
 			$$ = new_global_struct_declarator($1, $3, $5);
@@ -389,20 +392,20 @@ int yydebug = 1;
 			$$ = add_child($1, $2);
 		}
 		;
-	
+
 	union_body_component:
 		const_exp ':' local_declarator_list {
-			$$ = new_union_body_component($1, $3);	
+			$$ = new_union_body_component($1, $3);
 		}
 		|
 		tDEFAULT ':' local_declarator_list {
-			$$ = new_union_body_component(NULL, $3);				
+			$$ = new_union_body_component(NULL, $3);
 		}
 		;
-		
+
 /*
     Enums
-    
+
 		Global enum declaration:
 			enum counts {One, Two, Three};
 		Local enum declaration:
@@ -423,7 +426,7 @@ int yydebug = 1;
 			$$ = add_child($1, $3);
 		}
 		;
-	
+
 	enum_body_component:
 		tIDENTIFIER '=' const_exp {
 			$$ = new_enum_body_component($1, $3);
@@ -437,7 +440,7 @@ int yydebug = 1;
 /*
     Arrays
 */
-		
+
 	array_declarator_opt:
 		'[' const_exp ']' {
 			$$ = $2;
@@ -449,7 +452,7 @@ int yydebug = 1;
 
 /*
     Types
-*/	
+*/
 
 	primitive_type:
 		tBIT {
@@ -478,12 +481,12 @@ int yydebug = 1;
 		|
 		tINT {
 			$$ = new_primitive_type(tSIGNED);
-		}		
+		}
 		;
 
 /*
     Structures
-*/				
+*/
 
 	struct_body:
 		struct_body_component {
@@ -494,7 +497,7 @@ int yydebug = 1;
 			$$ = add_child($1, $2);
 		}
 		;
-		
+
 	struct_body_component:
 		local_declarator ';' {
 			$$ = $1;
@@ -514,7 +517,7 @@ int yydebug = 1;
 			$$ = add_child($1, $2);
 		}
 		;
-	
+
 	packet_body_component:
 		local_declarator ';' {
 			$$ = $1;
@@ -523,7 +526,7 @@ int yydebug = 1;
 
 /*
     Expressions
-*/	
+*/
 
 	const_exp:
 		integer_const_exp {
@@ -562,31 +565,31 @@ int yydebug = 1;
 			$$ = $1;
 		}
 		;
-	
+
 	double_const_exp:
 		tREALCONST {
 			$$ = new_double_const_exp($1);
 		}
 		;
-	
+
 	string_const_exp:
 		tSTRINGCONST {
             $$ = new_string_const_exp($1);
 		}
 		;
-	
+
 	integer_const_exp:
 		tINTCONST {
             $$ = new_integer_const_exp($1);
 		}
 		;
-	
+
 	struct_const_exp:
 		'{' struct_const_exp_body '}' {
 			$$ = new_struct_const_exp($2);
 		}
 		;
-	
+
 	struct_const_exp_body:
 		struct_const_exp_body_component {
 			$$ = new_struct_const_exp_body($1);
@@ -596,13 +599,13 @@ int yydebug = 1;
 			$$ = add_child($1, $3);
 		}
 		;
-		
+
 	struct_const_exp_body_component:
 		tIDENTIFIER '=' const_exp {
 			$$ = new_struct_const_exp_body_component($1, $3);
 		}
         ;
-        	
+
 	arithmetic_exp:
 		const_exp '+' const_exp {
 			$$ = new_arithmetic_exp($1, '+', $3);
@@ -624,7 +627,7 @@ int yydebug = 1;
 			$$ = new_arithmetic_exp($1, '%', $3);
 		}
 		;
-	
+
 	relational_exp:
 		const_exp '>' const_exp {
 			$$ = new_relational_exp($1, '>', $3);
@@ -650,7 +653,7 @@ int yydebug = 1;
 			$$ = new_relational_exp($1, tRELLE, $3);
 		}
 		;
-		
+
 	logical_exp:
 		'!' const_exp {
 			$$ = new_logical_exp(NULL, '!', $2);
@@ -690,7 +693,7 @@ int yydebug = 1;
 			$$ = new_bitwise_exp($1, tBITSL, $3);
 		}
 		;
-		
+
 	identifier:
 		tIDENTIFIER {
 			$$ = new_identifier($1);
@@ -700,10 +703,11 @@ int yydebug = 1;
 			$$ = add_child($1, $3);
 		}
 		;
-		
+
 
 %%
 
 int yyerror (char const * msg){
 	fprintf(stderr, "%s\n", msg);
+	return 1;
 }

@@ -64,7 +64,7 @@ enum nodes{
     STRUCT_BODY,
     STRUCT_BODY_COMPONENT,
     PACKET_BODY,
-    PACKET_BODY_COMPONENT              
+    PACKET_BODY_COMPONENT
 };
 
 #define MAX_CHILDREN 10
@@ -74,13 +74,10 @@ struct node {
 	unsigned int num_children;
 	void* children[MAX_CHILDREN];
 };
-
 typedef struct node node_t;
-
 typedef node_t* pnode_t;
 
 int generate_code(pnode_t protocol);
-int check_semantics(pnode_t protocol);
 
 pnode_t new_node(enum nodes type);
 pnode_t add_child(pnode_t pnode_parent, void *pchild);
