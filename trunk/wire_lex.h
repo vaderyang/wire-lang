@@ -6,34 +6,39 @@
 #include "wire.tab.h"
 
 /*LEXER data*/
-typedef struct {
+struct {
 	const char *identifier;
 	unsigned int token;
-	} RESERVED_WORD;
+} reserved_word;
+typedef reserved_word reserved_word_t;
+typedef reserved_word_t* preserved_word_t;
 
-static const RESERVED_WORD primitive_types[] = {
-	{"bit",	tBIT},
+static const reserved_word_t primitive_types[] = {
+//	{"bit",	tBIT},
 	{"byte",	tBYTE},
-	{"double",	tDOUBLE},
+	{"float",	tFLOAT},
 	{"string",	tSTRING},
-	{"int",	tINT},
+	{"uint",	tUINT},
+    {"sint",	tSINT},
 	{NULL, -1}
 };
 
-static const RESERVED_WORD constructed_types[] = {
-	{"protocol",	tPROTOCOL},
+static const reserved_word_t constructed_types[] = {
+//	{"protocol",	tPROTOCOL},
 	{"enum",	tENUM},
 	{"struct",	tSTRUCT},
 	{"union",	tUNION},
-	{"packet",	tPACKET},
+	{"pdu",	tPDU},
 	{NULL,	-1}
 };
 
-static const RESERVED_WORD statements[] = {
+static const reserved_word_t protocol = {"protocol", tPROTOCOL};
+
+static const reserved_word_t operation = {"operation", tOPERATION};
+
+static const reserved_word_t statements[] = {
 	{"import",	tIMPORT},
 	{"typedef",	tTYPEDEF},
-	{"unsigned",	tUNSIGNED},
-	{"signed",	tSIGNED},
 	{"default",	tDEFAULT},
 	{NULL,	-1}
 };

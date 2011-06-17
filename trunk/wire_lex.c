@@ -42,6 +42,14 @@ unsigned int get_token_by_identifier(char* identifier){
 		i++;
 	}
 	
+	if(!strcmp(protocol.identifier, identifier)){
+			return protocol.token;
+	}
+	
+	if(!strcmp(operation.identifier, identifier)){
+			return operation.token;
+	}
+
 	/*If not a reserved word of any kind then it's a new identifier*/
 	return tIDENTIFIER;
 }
