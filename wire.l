@@ -15,49 +15,49 @@ int yyparse();
 %}
 
 
-COMMENT	("/*"([^"*"]|[\r\n]|("*"+([^"*/"]|[\r\n])))*\*+\/)|("//".*)|(#.*)
+reCOMMENT	("/*"([^"*"]|[\r\n]|("*"+([^"*/"]|[\r\n])))*\*+\/)|("//".*)|(#.*)
 
-NEWLINE ([\r?\n])
+reNEWLINE ([\r?\n])
 
-WHITESPACE ([\t\f ]+|{NEWLINE})
+reWHITESPACE ([\t\f ]+|{reNEWLINE})
 
-IDENTIFIER ([A-Za-z_][A-Za-z0-9_]*)
+reIDENTIFIER ([A-Za-z_][A-Za-z0-9_]*)
 
-INT_CONST ({HEX_CONST}|{BIN_CONST}|{OCT_CONST}|{DEC_CONST})
+reINTCONST ({reHEXCONST}|{reBINCONST}|{reOCTCONST}|{reDECCONST})
 
-HEX_CONST (0(x|X)[0-9a-fA-F]+)
+reHEXCONST (0(x|X)[0-9a-fA-F]+)
 
-BIN_CONST (0(b|B)[01]+)
+reBINCONST (0(b|B)[01]+)
 
-OCT_CONST (0[0-7]+)
+reOCTCONST (0[0-7]+)
 
-DEC_CONST ([0-9][0-9]*)
+reDECCONST ([0-9][0-9]*)
 
-REAL_CONST ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)
+reFLOATCONST ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)
 
-STRING_CONST (\"[\40-\176]*\")
+reSTRINGCONST (\"[\40-\176]*\")
 
 %%
 
-{INT_CONST} {
+{reINTCONST} {
 		yylval.text = strdup(yytext);
 		print_debug("INT_CONST: %s\n",yylval.text);
 		return tINTCONST;
 	}
 
-{REAL_CONST} {
+{reFLOATCONST} {
 		yylval.text = strdup(yytext);
 		print_debug("REAL_CONST: %s\n",yylval.text);
-		return tREALCONST;
+		return tFLOATCONST;
 	}
 
-{STRING_CONST} {
+{reSTRINGCONST} {
 		yylval.text = strdup(yytext);
 		print_debug("STRING_CONST: %s\n",yylval.text);
 		return tSTRINGCONST;
 	}
 
-{IDENTIFIER} {
+{reIDENTIFIER} {
 		yylval.text = strdup(yytext);
 		print_debug("IDENTIFIER: %s\n",yylval.text);
 		return get_token_by_identifier(yytext);
@@ -108,7 +108,7 @@ STRING_CONST (\"[\40-\176]*\")
 		return *yytext;
 	}
 
-{WHITESPACE}	;
+{reWHITESPACE}	;
 
 .	{
 		print_error("%s <%s> -- line %d","invalid character", yytext, yylineno);
