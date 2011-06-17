@@ -26,28 +26,31 @@ int yydebug = 1;
 
 /*LITERALS/CONSTANTS*/
 %token <text> tINTCONST
-%token <text> tREALCONST
+%token <text> tFLOATCONST
 %token <text> tSTRINGCONST
 
 /*PRIMITIVE TYPES*/
-%token <text> tBIT
 %token <text> tBYTE
-%token <text> tDOUBLE
+%token <text> tFLOAT
 %token <text> tSTRING
-%token <text> tINT
+%token <text> tUINT
+%token <text> tSINT
 
 /*CONSTRUCTED TYPES*/
-%token <text> tPROTOCOL
 %token <text> tENUM
 %token <text> tSTRUCT
 %token <text> tUNION
-%token <text> tPACKET
+%token <text> tPDU
+
+/*PROTOCOL*/
+%token <text> tPROTOCOL
+
+/*OPERATION*/
+%token <text> tOPERATION
 
 /*STATEMENTS*/
 %token <text> tIMPORT
 %token <text> tTYPEDEF
-%token <text> tUNSIGNED
-%token <text> tSIGNED
 %token <text> tDEFAULT
 
 /*IDENTIFIER TOKEN*/
@@ -77,44 +80,45 @@ int yydebug = 1;
 %right '!' '~' //1
 
 %type <pnode> wire
+
 %type <pnode> protocol
-%type <pnode> attributes_opt
-%type <pnode> attributes
-%type <pnode> attribute
-%type <pnode> attribute_arguments
-%type <pnode> attribute_argument
 %type <pnode> protocol_body
-%type <pnode> protocol_components
-%type <pnode> protocol_component
-%type <pnode> global_declarator
-%type <pnode> local_declarator
-%type <pnode> global_constructed_type_declarator
-%type <pnode> primitive_type_declarator
-%type <pnode> local_constructed_type_declarator
-%type <pnode> local_union_declarator
-%type <pnode> union_body
-%type <pnode> union_body_component
-%type <pnode> local_declarator_list
-%type <pnode> local_enum_declarator
-%type <pnode> local_enum_declarator_anon
-%type <pnode> local_enum_declarator_named
-%type <pnode> global_enum_declarator
+%type <pnode> protocol_body_component
+
+%type <pnode> attribute_list_opt
+%type <pnode> attribute_list
+%type <pnode> attribute
+%type <pnode> attribute_argument_list
+%type <pnode> attribute_argument
+
+%type <pnode> type_definition
+%type <pnode> enum_definition
 %type <pnode> enum_body
 %type <pnode> enum_body_component
-%type <pnode> array_declarator_opt
-%type <pnode> primitive_type
-%type <pnode> typedef_declarator
-%type <pnode> local_struct_declarator
-%type <pnode> local_struct_declarator_anon
-%type <pnode> local_struct_declarator_named
-%type <pnode> global_struct_declarator
+%type <pnode> union_definition
+%type <pnode> union_body
+%type <pnode> union_body_component
+%type <pnode> struct_definition
 %type <pnode> struct_body
 %type <pnode> struct_body_component
-%type <pnode> packet_declarator
-%type <pnode> packet_body
-%type <pnode> packet_body_component
+%type <pnode> pdu_definition
+%type <pnode> pdu_body
+%type <pnode> pdu_body_component
+
+%type <pnode> local_declarator
+%type <pnode> local_declarator_list
+%type <pnode> primitive_local_declarator
+%type <pnode> constructed_local_declarator
+%type <pnode> anon_local_declarator
+
+%type <pnode> array_declarator_opt
+
+%type <pnode> operation_declarator
+%type <pnode> operation_arg_list
+%type <pnode> operation_arg
+
 %type <pnode> const_exp
-%type <pnode> double_const_exp
+%type <pnode> float_const_exp
 %type <pnode> string_const_exp
 %type <pnode> integer_const_exp
 %type <pnode> struct_const_exp
@@ -125,6 +129,7 @@ int yydebug = 1;
 %type <pnode> logical_exp
 %type <pnode> bitwise_exp
 %type <pnode> identifier
+
 
 %start wire
 %%
@@ -140,50 +145,42 @@ int yydebug = 1;
 		;
 
 /*
-    Protocol
+* PROTOCOL
 */
 
 	protocol:
-		'[' attributes ']' tPROTOCOL tIDENTIFIER '{' protocol_body '}' {
-			$$ = new_protocol($2, $5, $7);
-		}
-		|
-		tPROTOCOL tIDENTIFIER '{' protocol_body '}' {
-			$$ = new_protocol(NULL, $2, $4);
+		attribute_list_opt tPROTOCOL tIDENTIFIER '{' protocol_body '}' {
+			$$ = new_protocol($1, $3, $5);
 		}
 		;
 
 	protocol_body:
-		protocol_components {
-			$$ = $1;
-		}
-		;
-
-	protocol_components:
-		protocol_component {
-			$$ = new_protocol_components($1);
+		protocol_body_component ';'{
+			$$ = new_protocol_body($1);
 		}
 		|
-		protocol_components protocol_component {
+		protocol_body protocol_body_component {
 			$$ = add_child($1, $2);
 		}
 		;
 
-	protocol_component:
-		global_declarator ';' {
+	protocol_body_component:
+		type_definition {
 			$$ = $1;
+		}
+		|
+		operation_declarator {
+			$$ = $1
 		}
 		;
 
+		
 /*
-    Attributes
-
-    Attributes can be assigned to every data type in wire. They provide various
-    information about type's semantics, sizes and other.
+* ATTRIBUTES
 */
 
-	attributes_opt:
-		'[' attributes ']' {
+	attribute_list_opt:
+		'[' attribute_list ']' {
 			$$ = $2;
 		}
 		|
@@ -192,12 +189,12 @@ int yydebug = 1;
 		}
 		;
 
-	attributes:
+	attribute_list:
 		attribute {
-			$$ = new_attributes($1);
+			$$ = new_attribute_list($1);
 		}
 		|
-		attributes ',' attribute {
+		attribute_list ',' attribute {
 			$$ = add_child($1, $3);
 		}
 		;
@@ -207,17 +204,17 @@ int yydebug = 1;
 			$$ = new_attribute($1, NULL);
 		}
 		|
-		tIDENTIFIER '(' attribute_arguments ')'{
+		tIDENTIFIER '(' attribute_argument_list ')'{
 			$$ = new_attribute($1, $3);
 		}
 		;
 
-	attribute_arguments:
+	attribute_argument_list:
 		attribute_argument {
-			$$ = new_attribute_arguments($1);
+			$$ = new_attribute_argument_list($1);
 		}
 		|
-		attribute_arguments ',' attribute_argument {
+		attribute_argument_list ',' attribute_argument {
 			$$ = add_child($1, $3);
 		}
 		;
@@ -229,194 +226,32 @@ int yydebug = 1;
 		;
 
 /*
-    Declarators
-    There are two types of declarators:
-        a) Global declarator - a declarator statement made in global protocol
-        scope
-        b) Local declarator - a declarator statement made in scope of other types
-        such as typedefs, structure declarations and operation declarations.
+* TYPE DEFINITIONS
 */
 
-	global_declarator:
-		typedef_declarator {
-			$$ = $1;
+	type_definition:
+		enum_definition {
 		}
 		|
-		global_constructed_type_declarator {
-			$$ = $1;
+		union_definition {
 		}
 		|
-		packet_declarator {
-			$$ = $1;
+		struct_definition {
+		}
+		|
+		pdu_definition {
 		}
 		//|
-		//operation_declarator ';'
+		//typedef {
+		//}
 		;
-
-	local_declarator:
-		primitive_type_declarator {
-			$$ = $1;
-		}
-		|
-		local_constructed_type_declarator {
-			$$ = $1;
+	
+	/*ENUM*/
+	enum_definition:
+		attribute_list_opt tENUM tIDENTIFIER '{' enum_body '}' {
 		}
 		;
-
-	global_constructed_type_declarator:
-		global_enum_declarator {
-			$$ = $1;
-		}
-		|
-		global_struct_declarator {
-			$$ = $1;
-		}
-		//|
-		//global_union_declarator
-		;
-
-	primitive_type_declarator:
-		attributes_opt primitive_type tIDENTIFIER array_declarator_opt {
-			$$ = new_primitive_type_declarator($1, $2, $3, $4);
-		}
-		;
-
-	local_constructed_type_declarator:
-		local_enum_declarator {
-			$$ = $1;
-		}
-		|
-		local_struct_declarator {
-			$$ = $1;
-		}
-		|
-		local_union_declarator {
-			$$ = $1;
-		}
-		;
-
-	local_union_declarator:
-		attributes_opt tUNION '<' const_exp '>' '{' union_body '}' tIDENTIFIER array_declarator_opt {
-			$$ = new_local_union_declarator($1, $4, $7, $9, $10);
-		}
-		;
-
-	local_declarator_list:
-		local_declarator ';' {
-			$$ = new_local_declarator_list($1);
-		}
-		|
-		local_declarator_list local_declarator ';' {
-			$$ = add_child($1, $2);
-		}
-		;
-
-	local_enum_declarator:
-		local_enum_declarator_anon {
-		    $$ = $1;
-		}
-		|
-		local_enum_declarator_named {
-		    $$ = $1;
-		}
-		;
-
-    local_enum_declarator_anon:
-   		attributes_opt tENUM '{' enum_body '}' tIDENTIFIER array_declarator_opt {
-			$$ = new_local_enum_declarator_anon($1, $4, $6, $7);
-		}
-        ;
-
-    local_enum_declarator_named:
-		attributes_opt tENUM tIDENTIFIER tIDENTIFIER array_declarator_opt {
-			$$ = new_local_enum_declarator_named($1, $3, $4, $5);
-		}
-        ;
-
-	global_enum_declarator:
-		attributes_opt tENUM tIDENTIFIER '{' enum_body '}' {
-			$$ = new_global_enum_declarator($1, $3, $5);
-		}
-		;
-
-	typedef_declarator:
-		tTYPEDEF local_declarator {
-			$$ = new_typedef_declarator($2);
-		}
-		;
-
-	local_struct_declarator:
-    	local_struct_declarator_anon {
-    	    $$ = $1;
-    	}
-    	|
-    	local_struct_declarator_named {
-    	    $$ = $1;
-    	}
-    	;
-
-   	local_struct_declarator_anon:
-		attributes_opt tSTRUCT '{' struct_body '}' tIDENTIFIER array_declarator_opt {
-			$$ = new_local_struct_declarator_anon($1, $4, $6, $7);
-		}
-		;
-
-   	local_struct_declarator_named:
-		attributes_opt tSTRUCT tIDENTIFIER tIDENTIFIER array_declarator_opt {
-			$$ = new_local_struct_declarator_named($1, $3, $4, $5);
-		}
-		;
-
-	global_struct_declarator:
-		attributes_opt tSTRUCT tIDENTIFIER '{' struct_body '}' {
-			$$ = new_global_struct_declarator($1, $3, $5);
-		}
-		;
-
-	packet_declarator:
-		attributes_opt tPACKET tIDENTIFIER '{' packet_body '}' {
-			$$ = new_packet_declarator($1, $3, $5);
-		}
-		;
-
-/*
-    Union
-*/
-
-	union_body:
-		union_body_component {
-			$$ = new_union_body($1);
-		}
-		|
-		union_body union_body_component {
-			$$ = add_child($1, $2);
-		}
-		;
-
-	union_body_component:
-		const_exp ':' local_declarator_list {
-			$$ = new_union_body_component($1, $3);
-		}
-		|
-		tDEFAULT ':' local_declarator_list {
-			$$ = new_union_body_component(NULL, $3);
-		}
-		;
-
-/*
-    Enums
-
-		Global enum declaration:
-			enum counts {One, Two, Three};
-		Local enum declaration:
-			struct foo {
-				int num;
-				enum {One, Two, Three} count;
-				enum {One = 1, Two = 2, Three = 4} count2[3];
-				enum counts count3;
-			};
-*/
-
+	
 	enum_body:
 		enum_body_component {
 			$$ = new_enum_body($1);
@@ -436,57 +271,40 @@ int yydebug = 1;
 			$$ = new_enum_body_component($1, NULL);
 		}
 		;
-
-/*
-    Arrays
-*/
-
-	array_declarator_opt:
-		'[' const_exp ']' {
-			$$ = $2;
+	
+	/*UNION*/
+	union_definition:
+		attribute_list_opt tUNION '{' union_body '}' tIDENTIFIER {
+			$$ = new_union_definition($1, $4, $6);
 		}
-		| {
-			$$ = NULL;
+	;
+	
+	union_body:
+		union_body_component {
+			$$ = new_union_body($1);
+		}
+		|
+		union_body union_body_component {
+			$$ = add_child($1, $2);
 		}
 		;
 
-/*
-    Types
-*/
-
-	primitive_type:
-		tBIT {
-		    $$ = new_primitive_type(tBIT);
+	union_body_component:
+		const_exp ':' local_declarator_list {
+			$$ = new_union_body_component($1, $3);
 		}
 		|
-		tBYTE {
-		    $$ = new_primitive_type(tBYTE);
-		}
-		|
-		tSTRING {
-		    $$ = new_primitive_type(tSTRING);
-		}
-		|
-		tDOUBLE {
-		    $$ = new_primitive_type(tDOUBLE);
-		}
-		|
-		tUNSIGNED tINT {
-			$$ = new_primitive_type(tUNSIGNED);
-		}
-		|
-		tSIGNED tINT {
-			$$ = new_primitive_type(tSIGNED);
-		}
-		|
-		tINT {
-			$$ = new_primitive_type(tSIGNED);
+		tDEFAULT ':' local_declarator_list {
+			$$ = new_union_body_component(NULL, $3);
 		}
 		;
-
-/*
-    Structures
-*/
+	
+	/*STRUCT*/
+	struct_definition:
+		attribute_list_opt tSTRUCT tIDENTIFIER '{' struct_body '}' {
+			$$ = new_struct_definition($1, $3, $5);
+		}
+	;
 
 	struct_body:
 		struct_body_component {
@@ -504,28 +322,137 @@ int yydebug = 1;
 		}
 		;
 
-/*
-    Packets
-*/
-
-	packet_body:
-		packet_body_component {
-			$$ = new_packet_body($1);
+	/*PDU*/
+	pdu_definition:
+		attribute_list_opt tPDU tIDENTIFIER '{' pdu_body '}' {
+			$$ = new_pdu_definition($1, $3, $5);
+		}
+		;
+	
+	pdu_body:
+		pdu_body_component {
+			$$ = new_pdu_body($1);
 		}
 		|
-		packet_body packet_body_component {
+		pdu_body pdu_body_component {
 			$$ = add_child($1, $2);
 		}
 		;
 
-	packet_body_component:
+	pdu_body_component:
 		local_declarator ';' {
 			$$ = $1;
 		}
 		;
+	
+	/*LOCAL DECLARATOR*/
+	local_declarator:
+		primitive_local_declarator {
+			$$ = $1;
+		}
+		|
+		constructed_local_declarator {
+			$$ = $1;
+		}
+		|
+		anon_local_declarator {
+			$$ = $1;
+		}
+		;
+	
+	local_declarator_list:
+		local_declarator ';' {
+			$$ = new_local_declarator_list($1);
+		}
+		|
+		local_declarator_list local_declarator ';' {
+			$$ = add_child($1, $2);
+		}
+		;
+		
+	primitive_local_declarator:
+		attribute_list_opt tBYTE tIDENTIFIER array_declarator_opt {
+			$$ = new_primitive_local_declarator($1, $2, $3, $4);
+		}
+		|
+		attribute_list_opt tFLOAT tIDENTIFIER array_declarator_opt {
+			$$ = new_primitive_local_declarator($1, $2, $3, $4);
+		}
+		|
+		attribute_list_opt tSTRING tIDENTIFIER array_declarator_opt {
+			$$ = new_primitive_local_declarator($1, $2, $3, $4);
+		}
+		|
+		attribute_list_opt tUINT tIDENTIFIER array_declarator_opt {
+			$$ = new_primitive_local_declarator($1, $2, $3, $4);
+		}
+		|
+		attribute_list_opt tSINT tIDENTIFIER array_declarator_opt {
+			$$ = new_primitive_local_declarator($1, $2, $3, $4);
+		}
+		;
+	
+	constructed_local_declarator:
+		attribute_list_opt tENUM tIDENTIFIER tIDENTIFIER array_declarator_opt {
+			$$ = new_constructed_local_declarator($1, $2, $3, $4, $5);		
+		}
+		|
+		attribute_list_opt tSTRUCT tIDENTIFIER tIDENTIFIER array_declarator_opt {
+			$$ = new_constructed_local_declarator($1, $2, $3, $4, $5);		
+		}
+		|
+		attribute_list_opt tUNION tIDENTIFIER tIDENTIFIER array_declarator_opt {
+			$$ = new_constructed_local_declarator($1, $2, $3, $4, $5);		
+		}
+		|
+		attribute_list_opt tPDU tIDENTIFIER tIDENTIFIER array_declarator_opt {
+			$$ = new_constructed_local_declarator($1, $2, $3, $4, $5);		
+		}
+		;
+
+	anon_local_declarator:
+		attribute_list_opt tUNION '<' const_exp '>' '{' union_body '}' array_declarator_opt {
+			$$ = new_anon_local_declarator($1, $2, $4, $7, $9);
+		}
+		//TODO: struct, enum anon declarators
+		;
+		
+	/*ARRAY DECLARATOR*/
+	array_declarator_opt:
+		'[' const_exp ']' {
+			$$ = $2;
+		}
+		| {
+			$$ = NULL;
+		}
+		;
 
 /*
-    Expressions
+* OPERATIONS
+*/
+	operation_declarator:
+		attribute_list_opt tOPERATION tIDENTIFIER '(' operation_arg_list ')' {
+			$$ = new_operation_declarator($1, $3, $5);
+		}
+		;
+	
+	operation_arg_list:
+		operation_arg ',' {
+			$$ = new_operation_arg_list($1);
+		}
+		|
+		operation_arg_list operation_arg{
+			$$ = add_child($1, $2);
+		}
+		;
+	
+	operation_arg:
+		attribute_list tPDU tIDENTIFIER tIDENTIFIER {
+			$$ = new_operation_arg($1, $3, $4);
+		}
+		;
+/*
+* EXPRESSIONS
 */
 
 	const_exp:
@@ -533,7 +460,7 @@ int yydebug = 1;
 			$$ = $1;
 		}
 		|
-		double_const_exp {
+		float_const_exp {
 			$$ = $1;
 		}
 		|
@@ -566,8 +493,8 @@ int yydebug = 1;
 		}
 		;
 
-	double_const_exp:
-		tREALCONST {
+	float_const_exp:
+		tFLOATCONST {
 			$$ = new_double_const_exp($1);
 		}
 		;
