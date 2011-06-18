@@ -121,9 +121,9 @@ int yydebug = 1;
 %type <pnode> float_const_exp
 %type <pnode> string_const_exp
 %type <pnode> integer_const_exp
-%type <pnode> struct_const_exp
-%type <pnode> struct_const_exp_body
-%type <pnode> struct_const_exp_body_component
+//%type <pnode> struct_const_exp
+//%type <pnode> struct_const_exp_body
+//%type <pnode> struct_const_exp_body_component
 %type <pnode> arithmetic_exp
 %type <pnode> relational_exp
 %type <pnode> logical_exp
@@ -231,15 +231,19 @@ int yydebug = 1;
 
 	type_definition:
 		enum_definition {
+			$$ = $1;
 		}
 		|
 		union_definition {
+			$$ = $1;
 		}
 		|
 		struct_definition {
+			$$ = $1;
 		}
 		|
 		pdu_definition {
+			$$ = $1;
 		}
 		//|
 		//typedef {
@@ -249,6 +253,7 @@ int yydebug = 1;
 	/*ENUM*/
 	enum_definition:
 		attribute_list_opt tENUM tIDENTIFIER '{' enum_body '}' {
+			$$ = new_enum_definition($1, $3, $5);
 		}
 		;
 	
@@ -277,7 +282,7 @@ int yydebug = 1;
 		attribute_list_opt tUNION '{' union_body '}' tIDENTIFIER {
 			$$ = new_union_definition($1, $4, $6);
 		}
-	;
+		;
 	
 	union_body:
 		union_body_component {
@@ -411,8 +416,8 @@ int yydebug = 1;
 		;
 
 	anon_local_declarator:
-		attribute_list_opt tUNION '<' const_exp '>' '{' union_body '}' array_declarator_opt {
-			$$ = new_anon_local_declarator($1, $2, $4, $7, $9);
+		attribute_list_opt tUNION '<' const_exp '>' '{' union_body '}' {
+			$$ = new_anon_local_declarator($1, $2, $4, $7);
 		}
 		//TODO: struct, enum anon declarators
 		;
@@ -468,10 +473,6 @@ int yydebug = 1;
 			$$ = $1;
 		}
 		|
-		struct_const_exp {
-			$$ = $1;
-		}
-		|
 		identifier {
 			$$ = $1;
 		}
@@ -491,6 +492,7 @@ int yydebug = 1;
 		bitwise_exp {
 			$$ = $1;
 		}
+		//TODO: struct, array const expressions
 		;
 
 	float_const_exp:
@@ -511,6 +513,7 @@ int yydebug = 1;
 		}
 		;
 
+	/*
 	struct_const_exp:
 		'{' struct_const_exp_body '}' {
 			$$ = new_struct_const_exp($2);
@@ -532,6 +535,7 @@ int yydebug = 1;
 			$$ = new_struct_const_exp_body_component($1, $3);
 		}
         ;
+        */
 
 	arithmetic_exp:
 		const_exp '+' const_exp {
