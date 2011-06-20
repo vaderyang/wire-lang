@@ -82,6 +82,7 @@ int yydebug = 1;
 %type <pnode> wire
 
 %type <pnode> protocol
+%type <pnode> protocol_body_opt
 %type <pnode> protocol_body
 %type <pnode> protocol_body_component
 
@@ -149,18 +150,26 @@ int yydebug = 1;
 */
 
 	protocol:
-		attribute_list_opt tPROTOCOL tIDENTIFIER '{' protocol_body '}' {
+		attribute_list_opt tPROTOCOL tIDENTIFIER '{' protocol_body_opt '}' {
 			$$ = new_protocol($1, $3, $5);
 		}
 		;
 
+	protocol_body_opt:
+		protocol_body {
+			$$ = $1;
+		}
+		|{
+			$$ = NULL;
+		}
+		;
 	protocol_body:
 		protocol_body_component ';'{
 			$$ = new_protocol_body($1);
 		}
 		|
 		protocol_body protocol_body_component {
-			$$ = add_child($1, $2);
+			$$ = node_add_child($1, $2);
 		}
 		;
 
@@ -183,8 +192,7 @@ int yydebug = 1;
 		'[' attribute_list ']' {
 			$$ = $2;
 		}
-		|
-		{
+		|{
 			$$ = NULL;
 		}
 		;
@@ -195,7 +203,7 @@ int yydebug = 1;
 		}
 		|
 		attribute_list ',' attribute {
-			$$ = add_child($1, $3);
+			$$ = node_add_child($1, $3);
 		}
 		;
 
@@ -215,7 +223,7 @@ int yydebug = 1;
 		}
 		|
 		attribute_argument_list ',' attribute_argument {
-			$$ = add_child($1, $3);
+			$$ = node_add_child($1, $3);
 		}
 		;
 
@@ -263,7 +271,7 @@ int yydebug = 1;
 		}
 		|
 		enum_body ',' enum_body_component {
-			$$ = add_child($1, $3);
+			$$ = node_add_child($1, $3);
 		}
 		;
 
@@ -279,8 +287,8 @@ int yydebug = 1;
 	
 	/*UNION*/
 	union_definition:
-		attribute_list_opt tUNION '{' union_body '}' tIDENTIFIER {
-			$$ = new_union_definition($1, $4, $6);
+		attribute_list_opt tUNION tIDENTIFIER '{' union_body '}' {
+			$$ = new_union_definition($1, $3, $5);
 		}
 		;
 	
@@ -290,7 +298,7 @@ int yydebug = 1;
 		}
 		|
 		union_body union_body_component {
-			$$ = add_child($1, $2);
+			$$ = node_add_child($1, $2);
 		}
 		;
 
@@ -317,7 +325,7 @@ int yydebug = 1;
 		}
 		|
 		struct_body struct_body_component {
-			$$ = add_child($1, $2);
+			$$ = node_add_child($1, $2);
 		}
 		;
 
@@ -340,7 +348,7 @@ int yydebug = 1;
 		}
 		|
 		pdu_body pdu_body_component {
-			$$ = add_child($1, $2);
+			$$ = node_add_child($1, $2);
 		}
 		;
 
@@ -371,7 +379,7 @@ int yydebug = 1;
 		}
 		|
 		local_declarator_list local_declarator ';' {
-			$$ = add_child($1, $2);
+			$$ = node_add_child($1, $2);
 		}
 		;
 		
@@ -417,7 +425,7 @@ int yydebug = 1;
 
 	anon_local_declarator:
 		attribute_list_opt tUNION '<' const_exp '>' '{' union_body '}' {
-			$$ = new_anon_local_declarator($1, $2, $4, $7);
+			$$ = new_anon_local_declarator($1, $4, $7);
 		}
 		//TODO: struct, enum anon declarators
 		;
@@ -447,7 +455,7 @@ int yydebug = 1;
 		}
 		|
 		operation_arg_list operation_arg{
-			$$ = add_child($1, $2);
+			$$ = node_add_child($1, $2);
 		}
 		;
 	
@@ -497,7 +505,7 @@ int yydebug = 1;
 
 	float_const_exp:
 		tFLOATCONST {
-			$$ = new_double_const_exp($1);
+			$$ = new_float_const_exp($1);
 		}
 		;
 
@@ -526,7 +534,7 @@ int yydebug = 1;
 		}
 		|
 		struct_const_exp_body ',' struct_const_exp_body_component {
-			$$ = add_child($1, $3);
+			$$ = node_add_child($1, $3);
 		}
 		;
 
@@ -631,7 +639,7 @@ int yydebug = 1;
 		}
 		|
 		identifier '.' tIDENTIFIER {
-			$$ = add_child($1, $3);
+			$$ = node_add_child($1, $3);
 		}
 		;
 
