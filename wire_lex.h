@@ -6,11 +6,11 @@
 #include "wire.tab.h"
 
 /*LEXER data*/
-struct {
+struct reserved_word{
 	const char *identifier;
 	unsigned int token;
-} reserved_word;
-typedef reserved_word reserved_word_t;
+};
+typedef struct reserved_word reserved_word_t;
 typedef reserved_word_t* preserved_word_t;
 
 static const reserved_word_t primitive_types[] = {

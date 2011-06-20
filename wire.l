@@ -14,7 +14,6 @@ int yyparse();
 #define YYDEBUG 1
 %}
 
-
 reCOMMENT	("/*"([^"*"]|[\r\n]|("*"+([^"*/"]|[\r\n])))*\*+\/)|("//".*)|(#.*)
 
 reNEWLINE ([\r?\n])
@@ -35,10 +34,9 @@ reDECCONST ([0-9][0-9]*)
 
 reFLOATCONST ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)
 
-reSTRINGCONST (\"[\40-\176]*\")
+reSTRINGCONST (\"([\40-\41\43-\176])*\")
 
 %%
-
 {reINTCONST} {
 		yylval.text = strdup(yytext);
 		print_debug("INT_CONST: %s\n",yylval.text);
