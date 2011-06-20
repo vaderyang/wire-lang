@@ -1,0 +1,78 @@
+[
+	byte_order("MSB"),
+	bit_order("MSB"),
+	fp_rep("IEEE754"),
+	char_enc("ASCII")
+]
+protocol math{
+
+	[size_bits(1)] enum PDUType{
+		REQUEST = 0,
+		REPLY = 1
+	};
+	
+	enum ReplyType{
+		FAILURE,
+		SUCCESS		
+	};
+
+	[size_bits(2)] enum NumberType{
+		INTEGER,
+		REAL
+	};
+
+	struct MathReq {
+		enum NumberType enumber_type;
+		[size(4)] unsigned int narguments;
+		union <enumber_type> {
+			case INTEGER:
+				[size(1), range(1,64)] unsigned int size_arg;
+				[size_bits(size_arg)] signed int sint_args[narguments];
+			case FLOAT:
+				[size(1), list(32,64)] unsigned int size_arg;
+				[size_bits(size_arg)] float fp_args[narguments]
+			default:
+				exception("enumber_type: value not used");
+		}
+	};
+
+	struct MathRep {
+		enum ReplyType ereply_type;
+		union <ereply_type>{
+			case FAILURE:
+				[delimiter(0)] string	strerror;
+			case SUCCESS:
+		                enum NumberType enumber_type;
+				union <enumber_type> {
+					case INTEGER:
+		                                [size(1), range(1,64)] unsigned int size_res;
+		                                [size_bits(size_arg)] signed int sint_res;
+					case REAL:
+		                                [size(1), list(32,64)] unsigned int size_res;
+		                                [size_bits(size_arg)] float fp_args[narguments]
+					default:
+						exception("enumber_type: value not used");
+				}
+			default:
+				exception("enumber_type: value not used");
+		}
+	};
+
+	pdu Math {
+		enum PDUType epdu_type;
+		union <epdu_type> {
+			case REQUEST:
+				struct MathReq smathreq;
+			case REPLY:
+				struct MathRep smathrep;
+			default:
+				exception("epdu_type: value not used");
+		};
+	};
+
+	operation Add(
+		[] pdu Math args,
+		[] pdu Math res
+		);
+
+}
