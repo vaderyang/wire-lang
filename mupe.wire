@@ -1,0 +1,21 @@
+[
+	size(4,3,4),
+	size_bits(32),
+	align(1),
+	byte_order("MSB"),
+	bit_order("MSB"),
+	fp_rep("IEEE754"),
+	char_enc("ASCII"),
+	endpoint("tcp:1337", "udp:1337")
+]
+protocol mupe{
+
+	enum Test{
+		A = 1,
+		B,
+		C,
+		D,
+		E = 20
+	};
+
+}
