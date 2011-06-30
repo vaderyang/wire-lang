@@ -2,6 +2,9 @@
 \usepackage{booktabs}
 \usepackage{listings}
 \usepackage{amsthm}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
 \newtheorem{wirerule}{Rule}
 \newtheorem{wiredef}{Definition}
 
@@ -1415,10 +1418,10 @@ exchange logic, ie. protocol operations.
 One could say that, in a real world case scenario, this \emph{`automatic'} method 
 would follow the pattern matching method.
 
-There are two scenarious for automatic protocol recognition:
+There are two scenarios for automatic protocol recognition:
 \begin{description}
 	\item[direct or active] The system is directly communicating with the target 
-		host. It uses somekind of request/response based algorithm to learn the 
+		host. It uses some kind of request/response based algorithm to learn the 
 		protocol.
 	\item[proxy or passive] In this case the system is simply an observer that
 		captures the communication of interest between two target hosts. Note that
@@ -1428,15 +1431,52 @@ There are two scenarious for automatic protocol recognition:
 
 There are analogies with the human communication. I call this the \emph{Chinese} 
 analogy. So for example the \emph{direct} approach would consist of a target Chinese
-whos language I don't understand and me representing this learning system. I would
+whose language I don't understand and me representing this learning system. I would
 \emph{`talk'} to the Chinese hoping to get a response. Then by following certain
 heuristics I would refine the way I talk, hopefully learning Chinese language.
 The \emph{proxy} method would consist of me (learning system) listening to two
 Chinese talking to each other. Again heuristically learning their language.
 
+From a practical point of view this two methods could further be divided into 
+\emph{on-line} and \emph{off-line} methods, pertaining to the fact that the protocol
+data is collected real-time or captured and recorded for later processing, respectively.
 
+The approach taken here for tackling the task of automatic protocol recognition
+is by using genetic algorithms. For that purpose a demonstrative implementation\footnote{
+A handy name of Babel Fish Project is given to this project}
+has been developed using the \emph{Evolutionary Computation Framework}.
 
 \section{Genetic algorithms overview}
+A \emph{genetic algorithm} (GA) is a search heuristic that mimics the process of 
+natural evolution. This heuristic is routinely used to generate useful solutions 
+to optimization and search problems. Genetic algorithms belong to the larger class 
+of \emph{evolutionary algorithms} (EA), which generate solutions to optimization 
+problems using techniques inspired by natural evolution, such as inheritance, 
+mutation, selection, and crossover.
+
+\begin{algorithm}
+\caption{Genetic algorithm}
+\label{alg:gen_alg}
+\begin{algorithmic}
+\STATE $popsize \gets DesiredPopulationSize$
+\STATE $P \gets \{\}$
+\FOR{popsize times}
+	\STATE $P \gets P \cup \{NewRandomIndividual\}$
+\ENDFOR
+\STATE $Best \gets nil$
+\REPEAT
+	\STATE $PNew \gets \{\}$
+	\STATE $Evaluate(P)$
+	\STATE $PNew \gets Select(P)$
+	\STATE $Crossover(PNew)$
+	\STATE $Mutate(Pnew)$
+	\STATE $P \gets PNew$
+	\STATE $Best \gets Best(P)$
+\UNTIL{Termination criteria achieved}
+\RETURN Best
+\end{algorithmic}
+\end{algorithm}
+
 \section{Network protocol genotype}
 \section{Genetic operators}
 \section{}
