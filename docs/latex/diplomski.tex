@@ -1415,6 +1415,27 @@ exchange logic, ie. protocol operations.
 One could say that, in a real world case scenario, this \emph{`automatic'} method 
 would follow the pattern matching method.
 
+There are two scenarious for automatic protocol recognition:
+\begin{description}
+	\item[direct or active] The system is directly communicating with the target 
+		host. It uses somekind of request/response based algorithm to learn the 
+		protocol.
+	\item[proxy or passive] In this case the system is simply an observer that
+		captures the communication of interest between two target hosts. Note that
+		there is a lot more information exposed when using this method as the system
+		obtaines both the requests and responses.
+\end{description}
+
+There are analogies with the human communication. I call this the \emph{Chinese} 
+analogy. So for example the \emph{direct} approach would consist of a target Chinese
+whos language I don't understand and me representing this learning system. I would
+\emph{`talk'} to the Chinese hoping to get a response. Then by following certain
+heuristics I would refine the way I talk, hopefully learning Chinese language.
+The \emph{proxy} method would consist of me (learning system) listening to two
+Chinese talking to each other. Again heuristically learning their language.
+
+
+
 \section{Genetic algorithms overview}
 \section{Network protocol genotype}
 \section{Genetic operators}
