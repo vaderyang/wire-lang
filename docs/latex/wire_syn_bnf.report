@@ -1,0 +1,139 @@
+Grammar
+
+    0 $accept: wire $end
+
+    1 wire: protocol
+    2     | /* empty */
+
+    3 protocol: attribute_list_opt tPROTOCOL tIDENTIFIER '{' protocol_body_opt '}'
+
+    4 protocol_body_opt: protocol_body
+    5                  | /* empty */
+
+    6 protocol_body: protocol_body_component ';'
+    7              | protocol_body protocol_body_component
+
+    8 protocol_body_component: type_definition
+    9                        | operation_declarator
+
+   10 attribute_list_opt: '[' attribute_list ']'
+   11                   | /* empty */
+
+   12 attribute_list: attribute
+   13               | attribute_list ',' attribute
+
+   14 attribute: tIDENTIFIER
+   15          | tIDENTIFIER '(' attribute_argument_list ')'
+
+   16 attribute_argument_list: attribute_argument
+   17                        | attribute_argument_list ',' attribute_argument
+
+   18 attribute_argument: const_exp
+
+   19 type_definition: enum_definition
+   20                | union_definition
+   21                | struct_definition
+   22                | pdu_definition
+
+   23 enum_definition: attribute_list_opt tENUM tIDENTIFIER '{' enum_body '}'
+
+   24 enum_body: enum_body_component
+   25          | enum_body ',' enum_body_component
+
+   26 enum_body_component: tIDENTIFIER '=' const_exp
+   27                    | tIDENTIFIER
+
+   28 union_definition: attribute_list_opt tUNION tIDENTIFIER '{' union_body '}'
+
+   29 union_body: union_body_component
+   30           | union_body union_body_component
+
+   31 union_body_component: const_exp ':' local_declarator_list
+   32                     | tDEFAULT ':' local_declarator_list
+
+   33 struct_definition: attribute_list_opt tSTRUCT tIDENTIFIER '{' struct_body '}'
+
+   34 struct_body: struct_body_component
+   35            | struct_body struct_body_component
+
+   36 struct_body_component: local_declarator ';'
+
+   37 pdu_definition: attribute_list_opt tPDU tIDENTIFIER '{' pdu_body '}'
+
+   38 pdu_body: pdu_body_component
+   39         | pdu_body pdu_body_component
+
+   40 pdu_body_component: local_declarator ';'
+
+   41 local_declarator: primitive_local_declarator
+   42                 | constructed_local_declarator
+   43                 | anon_local_declarator
+
+   44 local_declarator_list: local_declarator ';'
+   45                      | local_declarator_list local_declarator ';'
+
+   46 primitive_local_declarator: attribute_list_opt tBYTE tIDENTIFIER array_declarator_opt
+   47                           | attribute_list_opt tFLOAT tIDENTIFIER array_declarator_opt
+   48                           | attribute_list_opt tSTRING tIDENTIFIER array_declarator_opt
+   49                           | attribute_list_opt tUINT tIDENTIFIER array_declarator_opt
+   50                           | attribute_list_opt tSINT tIDENTIFIER array_declarator_opt
+
+   51 constructed_local_declarator: attribute_list_opt tENUM tIDENTIFIER tIDENTIFIER array_declarator_opt
+   52                             | attribute_list_opt tSTRUCT tIDENTIFIER tIDENTIFIER array_declarator_opt
+   53                             | attribute_list_opt tUNION tIDENTIFIER tIDENTIFIER array_declarator_opt
+   54                             | attribute_list_opt tPDU tIDENTIFIER tIDENTIFIER array_declarator_opt
+
+   55 anon_local_declarator: attribute_list_opt tUNION '<' const_exp '>' '{' union_body '}'
+
+   56 array_declarator_opt: '[' const_exp ']'
+   57                     | /* empty */
+
+   58 operation_declarator: attribute_list_opt tOPERATION tIDENTIFIER '(' operation_arg_list ')'
+
+   59 operation_arg_list: operation_arg ','
+   60                   | operation_arg_list operation_arg
+
+   61 operation_arg: attribute_list tPDU tIDENTIFIER tIDENTIFIER
+
+   62 const_exp: integer_const_exp
+   63          | float_const_exp
+   64          | string_const_exp
+   65          | identifier
+   66          | arithmetic_exp
+   67          | relational_exp
+   68          | logical_exp
+   69          | bitwise_exp
+
+   70 float_const_exp: tFLOATCONST
+
+   71 string_const_exp: tSTRINGCONST
+
+   72 integer_const_exp: tINTCONST
+
+   73 arithmetic_exp: const_exp '+' const_exp
+   74               | const_exp '-' const_exp
+   75               | const_exp '*' const_exp
+   76               | const_exp '/' const_exp
+   77               | const_exp '%' const_exp
+
+   78 relational_exp: const_exp '>' const_exp
+   79               | const_exp '<' const_exp
+   80               | const_exp tRELEQU const_exp
+   81               | const_exp tRELNEQU const_exp
+   82               | const_exp tRELGE const_exp
+   83               | const_exp tRELLE const_exp
+
+   84 logical_exp: '!' const_exp
+   85            | const_exp tLOGAND const_exp
+   86            | const_exp tLOGOR const_exp
+
+   87 bitwise_exp: '~' const_exp
+   88            | const_exp '&' const_exp
+   89            | const_exp '|' const_exp
+   90            | const_exp '^' const_exp
+   91            | const_exp tBITSR const_exp
+   92            | const_exp tBITSL const_exp
+
+   93 identifier: tIDENTIFIER
+   94           | identifier '.' tIDENTIFIER
+

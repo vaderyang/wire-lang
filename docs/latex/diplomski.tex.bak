@@ -1,0 +1,69 @@
+\documentclass[times, utf8, diplomski]{fer}
+\usepackage{booktabs}
+
+\begin{document}
+
+% TODO: Navedite broj rada.
+\thesisnumber{222}
+
+% TODO: Navedite naslov rada.
+\title{Metode predstavljanja i automatskog prepoznavanja mrežnih protokola}
+
+% TODO: Navedite svoje ime i prezime.
+\author{Dražen Popović}
+
+\maketitle
+
+% Ispis stranice s napomenom o umetanju izvornika rada. Uklonite naredbu \izvornik ako želite izbaciti tu stranicu.
+\izvornik
+
+% Dodavanje zahvale ili prazne stranice. Ako ne želite dodati zahvalu, naredbu ostavite radi prazne stranice.
+\zahvala{Hvala!}
+
+\tableofcontents
+
+\chapter{Introduction}
+The thesis starts with giving an overview on network protocol theory including
+protocol design, specification and implementation. This provides the appropriate
+terminology and a knowledge framework for developing a network protocol specification
+language, called Wire. A custom protocol is developed to demonstrate Wire, thus
+showing its motivation, purpose and inner workings. Detalied descriptions are 
+provided on making the Wire compiler including language analysis and code generation.
+The second part of this thesis analyses the task of automatic recognition of
+network protocols. The approach taken for solving this problem is evolutionary
+computation technique, more specifically genetic algorithms. By utilizing the C++
+framework, called Evolutionary Computation Framework, a network protocol genotype
+and corresponding genetic operators are described and implemented.
+
+\chapter{Wire definition language}
+\chapter{Automatic recognition of network protocol}
+\chapter{Conclusion}
+Zaključak.
+
+\bibliography{literatura}
+\bibliographystyle{fer}
+
+\begin{sazetak}
+Sažetak na hrvatskom jeziku.
+
+\kljucnerijeci{Ključne riječi, odvojene zarezima.}
+\end{sazetak}
+
+% TODO: Navedite naslov na engleskom jeziku.
+\engtitle{Methods of network protocol specification and automatic recognition}
+\begin{abstract}
+This thesis consists of two separate and independent chapters. First chapter gives
+an overview on network protocol theory including protocol design, specification
+and implementation. This chapter also introduces the Wire network protocol 
+specification language and contains detailed descriptions on language analisys
+and code generation. The second chapter deals with automatic recognition of
+"unknown" network protocol. Genetic algorithms are utilized for solving this
+problem, therefore a network protocol genotype and corresponding genetic operators 
+are developed and implemented using the Evolutionary Computation Framework.
+
+\keywords{network protocol theory, abstract syntax notation, 
+wire definition language, automatic recognition, genetic algorithms, 
+evolutionary computation framework}
+\end{abstract}
+
+\end{document}
