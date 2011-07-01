@@ -922,7 +922,7 @@ Lexical analysis is the process of converting a sequence of characters into a
 sequence of lexical units called \emph{tokens}. Wire uses \emph{GNU Flex} tool 
 to generate the Wire tokenizer. Flex is really convenient for processing textual 
 files as it allows users to simply describe tokens using regular expressions. 
-Appendinx \ref{lst:wire_l} holds the flex source file which lists all of the defined 
+Appendix \ref{lst:wire_l} holds the flex source file which lists all of the defined 
 Wire tokens and their corresponding regular expressions.
 
 Let's introduce some, more relevant, lexical conventions for Wire users. The 
@@ -952,7 +952,7 @@ ident1234_
 _ident1234
 \end{lstlisting}
 
-A valid character set for a Wire identifier consists of alphanumerical characters
+A valid character set for a Wire identifier consists of alphanumeric Al characters
 and the underscore. Note that the first character must be a letter or an 
 underscore sign.
 
@@ -1280,54 +1280,23 @@ if we define byte order attribute in the protocol definition attribute list it
 means that every enclosed component, implicitly, receives this attribute (except 
 when overriden by a more specific attribute definition).
 
-\begin{table}[htb]
-\begin{center}
-\begin{tabular}{|l|l|l|l|l|}\hline
-name & arguments & type & applicability & general\\
-\hline
-byte\textunderscore{}order & string & serialization & uint,sint,float,string & yes\\
-\hline
-bit\textunderscore{}order & string & serialization & uint,sint,float,string & yes\\
-\hline
-fp\textunderscore{}rep & string & serialization & float & yes\\
-\hline
-char\textunderscore{}enc & string & serialization & string & yes\\
-\hline
-size & uint & serialization & uint,sint,float,string & yes\\
-\hline
-size\textunderscore{}bits & uint & serialization & uint,sint,float,string & yes\\
-\hline
-align & uint & serialization & any & no\\
-\hline
-delimiter & any & serialization & array,string & no\\
-\hline
-endpoint & string & communication & protocol & no\\
-\hline
-timeout & uint & communication & operation & yes\\
-\hline
-exception & any,uint,string & sanity & any/protocol,operation & no\\
-\hline
-list & any... & sanity & any/protocol,operation & no\\
-\hline
-range & sint|uint|float, sint|uint|float sanity sint,uint,float no\\
-\hline
-const any sanity any/protocol,operation no\\
-\hline
-md5 any... value sint,uint no\\
-\hline
-\end{tabular}\\
-\end{center}
-\centering
-\caption{Attributes}
-\label{tab:attrs}
-\end{table}
-
-The TABLE ATTRIBUTES lists the currently defined attributes in Wire. Wire 
-architecture is designed so the additions of new attributes is easy and simple. 
-The first column is the attribute name, the second lists the arguments and its 
-data type. The third columns shows the type of attribute which are previously 
-defined, and the last two show the attribute applicability (list of Wire components) 
-and the attribute generality.
+\begin{description}
+	\item[byte\textunderscore{}order(string)] General serialization attribute applicable to uint,sint,float,string local declarations.
+	\item[bit\textunderscore{}order(string)] General serialization attribute applicable to uint,sint,float,string local declarations.
+	\item[fp\textunderscore{}rep(string)] General serialization attribute applicable to float local declarations.
+	\item[char\textunderscore{}enc(string)] General serialization attribute applicable to string local declarations.
+	\item[size(uint)] General serialization attribute applicable to uint,sint,float,string local declarations.
+	\item[size\textunderscore{}bits(uint)] General serialization attribute applicable to uint,sint,float,string local declarations.
+	\item[align(uint)] Non-general serialization attribute applicable to any local declaration and any type definition.
+	\item[delimiter(any)] Non-general serialization attribute applicable to array and string declarations.
+	\item[endpoint(string)] Non-general communication attribute applicable to protocol definition.
+	\item[timeout(uint)] General communication attribute applicable to operation declaration.
+	\item[exception(any, (any)...)] Non-general sanity attribute applicable to any local declaration.
+	\item[list((any)...)] Non-general sanity attribute applicable to any local declaration.
+	\item[range(any, any)] Non-general sanity attribute applicable to any sint,uint,float local declarations.
+	\item[const(any)] Non-general sanity attribute applicable to any local declaration.
+	\item[md5(any)] Non-general value attribute applicable to any uint local declaration.
+\end{description}
 
 Lets move on to describe the Wire \emph{local declaration scoping}. Lets first define 
 the term scope in the broad context of computer programming:
@@ -1398,14 +1367,31 @@ Our abstract syntax tree is now fully checked for any semantical inconsistencies
 and given over to the next phase, code generation.
 
 \section{Wire code generation}
-\section{Wire compiler}
+The code generation subsystem receives a semantically valid abstract syntax tree.
+By traversing the tree it generates the corresponding code for the current node.
+
+The generated code heavily relies on cross-platform Wire serialization/deserialization 
+engine written in C, called \emph{DeSer}. This engine provides a well define interface to handle serialization
+and deserialization of basic primitive data types: integers, floating point numbers and strings.
+It allows users to define the transfer syntax by specifying data alignment, byte and bit ordering, 
+sizes, floating point representation, character encodings... This library relies
+on the \emph{Bitstring} library for serialization and implements deserialization
+methods on its own. Lua extensions have also been implemented for interfacing with
+mentioned libraries from within Lua runtime environment.
+
+The communication engine is not implemented, but basic use cases exists and the
+library interface is in the design phase. The decision lies on whether to implement
+this engine on top of \emph{Berkley Socket} interface, provided on Linux systems,
+or to use an open-source, cross-platform and maintained solution. The main candidate
+is the \emph{NSock} project\footnote{Part of the Nmap project}.
 
 \chapter{Automatic recognition of network protocols}
+\label{ch:aut_rec}
 For starters let's further explain the chapter title. Classic approach to 
 recognition of network protocols is to have a pattern database of 
 known network protocols data units. This combined with a deterministic matching 
 engine results in a system\footnote{Real world examples are Nmap network scanning
-engine and Amap application mapper} for unambiquous recognition of network protocols.
+engine and Amap application mapper} for unambiguous recognition of network protocols.
 
 This is where the \emph{`automatic'} part comes in that completely differentiates
 pattern matching method from the one discussed in this thesis.
@@ -1426,7 +1412,7 @@ There are two scenarios for automatic protocol recognition:
 	\item[proxy or passive] In this case the system is simply an observer that
 		captures the communication of interest between two target hosts. Note that
 		there is a lot more information exposed when using this method as the system
-		obtaines both the requests and responses.
+		obtains both the requests and responses.
 \end{description}
 
 There are analogies with the human communication. I call this the \emph{Chinese} 
@@ -1477,38 +1463,195 @@ mutation, selection, and crossover.
 \end{algorithmic}
 \end{algorithm}
 
+To use a genetic algorithm, you must represent a solution to your problem as a 
+genome (or chromosome). The genetic algorithm then creates a population of 
+solutions and applies genetic operators such as mutation and crossover to 
+evolve the solutions in order to find the best one(s).
+
+Instead of programming my own GA engine I decided on using - \emph{Evolutionary 
+Computation Framework}.
+ECF is a C++ framework intended for application of any type of evolutionary 
+computation. It provides a handy evolutionary framework, including algorithms,
+genotypes and genetic operators. Also it has a solid XML based system for 
+parameterization of your application. My sole occupation is to design a network
+protocol genotype and corresponding genetic operators (evaluation, crossover,
+mutation) and implement them in ECF.
+
 \section{Network protocol genotype}
+The method for automatic network protocol recognition developed in the scope of
+this thesis is the \emph{proxy off-line} method, as described in the chapter \ref{ch:aut_rec}.
+Further more, for practical reasons, I've limited the search space by reducing the
+problem to -- \emph{recognition of protocol data unit structuring}.
+
+When developing a genotype first question you need to ask is: "How does an 
+instance of a solution look like?". First of all protocol data must be captured
+and recorded. Once appropriately processed it's passed to the input of the 
+learning system -- \emph{learning set}. Let's refer to this as \emph{pdu instances}
+
+\begin{figure}[htb]
+\begin{center}
+\leavevmode
+\includegraphics[width=0.8\textwidth]{net_proto_gen}
+\end{center}
+\caption{Network protocol genotype}
+\label{fig:net_proto_gen}
+\end{figure}
+
+Well we're trying to figure out the structuring of protocol data units passed to the input.
+Considering there can be more than one in a particular network protocol instance, 
+the solution consists of a number of \emph{pdu structures}. Other than structuring, 
+every pdu structure must have assigned an subset of input. This \emph{pdu structure-pdu instances} 
+relation tells us which part of input is \emph{`described'} by which pdu structure.
+
+The genotype consists (Figure \ref{fig:net_proto_gen}) of pdu structures and every
+pdu structure is assigned a subset of pdu instances. A pdu structure is built of
+\emph{fields}. A field can be of \emph{uint, sint and float} types pertaining to
+unsigned and signed integers, and floating point numbers. Further more a field can
+be a sized array which size can be set constant or set by other fields in the same
+pdu structure.
+
+Every field contains \emph{attributes} which describes its transfer syntax and semantics.
+The defined attributes are:
+\begin{description}
+	\item[size\textunderscore{}bits] Size of the element in bit measure.
+	\item[byte\textunderscore{}order] Byte ordering for a byte sized field.
+	\item[bit\textunderscore{}order] Bit ordering.
+	\item[range] Semantic attribute that defines a field value range.
+	\item[const] Semantic attribute that defines a field is constant in value.
+\end{description}
+
+Our goal is to learn the type of fields in a pdu structure and their attributes.
+
+The network protocol genotype is implemented within ECF framework in \emph{`NetProtoGen.cpp'}
+file. It has registered parameters for setting the maximal pdu structures number
+and of defining the number of captured data (pdu instances) to be considered a 
+learning set:
+
+\lstset{language=XML}
+\lstset{basicstyle=\tiny}
+\lstset{caption={Network protocol genotype parameters},label=lst:xml_netproto_gen}
+\begin{lstlisting}[frame=tb]
+<Genotype>
+	<NetProto>
+		<Entry key="max_pdus">4</Entry>
+		<Entry key="num_cap_pdus">1000</Entry>
+	</NetProto>
+</Genotype>
+\end{lstlisting}
+
+
 \section{Genetic operators}
-\section{}
+ECF provides all of the necessary core elements such as algorithm and fitness
+components. Our job is to develop three operators for our newly defined network
+protocol genotype. The first is the evaluation operator, then the crossover and
+mutation operators.
+
+\subsection{Evaluation}
+This was probably the most challenging part to implement. It consists of generating
+Lua code which performs the dissection of pdu instances according to a pdu structuring 
+information held by the genotype. This code is invoked from the C++ environment
+and executed in Lua environment. Other than parsing it calculates the fitness 
+for that genotype instance.
+
+The fitness calculation is based on semantic validity of fields with assigned
+semantic attributes such as range, constant and array size semantic attributes.
+Note that the pdu structure size can, in general, be determined in runtime, so
+fitness calculation takes the size mismatch for every pair of pdu structure and 
+pdu instance into consideration.
+
+The constant and range attributes are checked for a field in a pdu structure and
+for every pdu instance assigned to this pdu structure. Any violation of these
+semantic restrictions is punished.
+
+Two things can happen when parsing a field. First he field size can index data 
+beyond a pdu instance size. Such occurrence must be punished by the evaluator.
+The second thing can indicate a valid data space inside the size boundaries of
+a pdu instance. This situation must be rewarded by the evaluator.
+
+When the parsing of a single pdu instance is done according to structuring rules
+of a pdu structure, the size mismatch is calculated and punished by the evaluator.
+
+The evaluation operator is implemented in \emph{`NetProtoEvalOp.cpp'}. Its registered
+parameter sets the file name of the input file which contains the pdu instances.
+
+\subsection{Crossover}
+Crossover is a genetic operator used to combine genetic material of \emph{parents}
+to produce a new individual, a \emph{child}. A crossover operation represents a
+directed search component of genetic algorithms, oppose to a mutation operation 
+which represents a random search component. By performing a crossover operation 
+on two individuals we hope to explore the solution space near them, hopefully 
+finding a better solution.
+
+There are two step in recombining network protocol genotypes. The first takes
+two random pdu structures from both parents, and performs a sort of one cross-point
+crossover with points represented as fields. The second operation deals with
+pdu instance assignments. If a genotype has the same number of pdu structures
+then the pdu instance assignments are copied to a child from randomly chosen 
+parent.
+
+Crossover is implemented in \emph{`NetProtoCrxOp.cpp'} and it has no registered
+parameters.
+
+\subsection{Mutation}
+This is the simplest operation, and you can get pretty creative when designing 
+a mutation operation. A network protocol genotype mutation operator also operates 
+in two phases. The first randomly chooses a pdu structure and rebuilds it from 
+scratch and the second resets the pdu instance assignments.
+
+Mutation is implemented in \emph{`NetProtoMutOp.cpp'} and it has no registered
+parameters.
 
 \chapter{Conclusion}
-Zaključak.
+Time invested in designing and developing the \emph{Wire} language for network
+protocol specification resulted in clear definitions of language purpose, lexical
+conventions, syntax and semantics. A cross-platform serialization engine has been
+developed (and ported to Lua) in C on which the generated code is heavily dependent. A priority is the 
+implementation of a Wire communication engine, or integration with existing open-source 
+solutions. Future works consists of making a Python based code generation plug-in 
+architecture, for more practical and easier code generation. Furthermore the 
+GNU M4 macro language is to be utilized for implementation of Wire code inclusions.
+
+The proposition that the task of automatic network protocol data units recognition
+can be solved using the genetic algorithms has proven faulty. Even in theoretical
+considerations the choice of using meta-heuristic search methods is wrong. The reason 
+being that protocol data unit fields are, most commonly, mutually independent and lack the semantic
+relationships. Therefore the genetic evaluator has no way, or little way, of determining
+a fitness of an individual. Nevertheless a network protocol genotype has been developed
+using the C++ ECF framework, including the genetic operators (evaluator, crossover, mutation).
+The test example included `recognition' of \emph{Internet Protocol} (IP) data units. 
 
 \bibliography{literatura}
 \bibliographystyle{fer}
 
-\begin{sazetak}
-Sažetak na hrvatskom jeziku.
-
-\kljucnerijeci{Ključne riječi, odvojene zarezima.}
-\end{sazetak}
-
-% TODO: Navedite naslov na engleskom jeziku.
-\engtitle{Methods for specification and automatic recognition of network protocols}
 \begin{abstract}
-This thesis consists of two separate and independent chapters. First chapter gives
-an overview on network protocol theory including protocol design, specification
-and implementation. This chapter also introduces the Wire network protocol 
-specification language and contains detailed descriptions on language analysis
-and code generation. The second chapter deals with automatic recognition of
-`unknown' network protocol. Genetic algorithms are utilized for solving this
-problem, therefore a network protocol genotype and corresponding genetic operators 
-are developed and implemented using the Evolutionary Computation Framework.
+This thesis discusses two separate and independent topics. First an overview on 
+network protocol theory including protocol design, specification and implementation 
+is given. This topic also introduces the Wire network protocol specification language 
+and contains detailed descriptions on language analysis and code generation. 
+The second topic deals with automatic recognition of `unknown' network protocols. 
+Genetic algorithms are utilized for solving this problem, therefore a network 
+protocol genotype and corresponding genetic operators are developed and implemented 
+using the C++ Evolutionary Computation Framework.
 
 \keywords{network protocol theory, abstract syntax notation, 
 wire definition language, automatic recognition, genetic algorithms, 
 evolutionary computation framework}
 \end{abstract}
+
+\title{Metode predstavljanja i automatskog prepoznavanja mrežnih protokola}
+\begin{sazetak}
+Ovaj rad obrađuje dvije odvojene i nezavisne teme. Za početak je napravljen pregled 
+nad teorijom mrežnim protokola, uključujući dizajn, specifikaciju i implementaciju
+mrežnih protokola. Također ova tema sadrži uvod u jezik za specifikaciju mrežnih protokola 
+- Wire i detaljna objašnjenja analize jezika i generiranja koda. Druga tema
+se bavi automatskim prepoznavanjem `nepoznatih' mrežnih protokola. Za rješavanje
+ovog problema korišteni su genetski algoritmi. Shodno tome razvijen je i ostvaren
+genotip mrežnog protokola i odgovarajući genetski operatori unutar C++ programskog 
+okruženja Evolutionary Computation Framework.
+
+\kljucnerijeci{teorija mrežnih protokola, notacija za apstraktnu sintaksu, wire jezik, 
+automatsko prepoznavanje, genetski algoritmi, evolutionary computation framework}
+\end{sazetak}
 
 \appendix
 \chapter{Wire lexical definitions}
