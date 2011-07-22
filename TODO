@@ -2,3 +2,4 @@ all: test libs on different archs concerning register length (sizeof(long)).
 bitstring: further testing on BE machines.
 serdes: implement and test for BE machines.
 wire. semantics, code gen
+cjeck
