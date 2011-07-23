@@ -1,17 +1,17 @@
 #include "bitstring.h"
 #include "utils.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
-#include "math.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 /*BYTE ORDER*/
-char native_byte_order = ORD_LE;
-char get_native_byte_order(){
+order_t native_byte_order = ORD_LE;
+order_t get_native_byte_order(){
 	return native_byte_order;
 }
 
-char check_native_byte_order(){
+order_t check_native_byte_order(){
 	unsigned short int sh = 0xabcd;
 	unsigned char *ptr = (unsigned char*)&sh;
 	if(*ptr == 0xcd && *(ptr+1) == 0xab)
@@ -22,8 +22,8 @@ char check_native_byte_order(){
 
 /*BIT ORDER*/
 /*@TODO: make check_native_bit_order()*/
-char native_bit_order = ORD_BE;
-char get_native_bit_order(){
+order_t native_bit_order = ORD_BE;
+order_t get_native_bit_order(){
 	return native_bit_order;
 }
 
@@ -34,8 +34,8 @@ unsigned int get_native_long_int_sz(){
 
 /*FLOATING POINT*/
 /*@TODO: make check_native_fp_rep()*/
-char native_fp_rep = FP_IEEE754;
-char get_native_fp_rep(){
+fprep_t native_fp_rep = FP_IEEE754;
+fprep_t get_native_fp_rep(){
 	return native_fp_rep;
 }
 
@@ -213,7 +213,7 @@ Exceptions: crypto
 @faq Why is here "size_bytes" arg when everywhere else is "size" in bits?
 	- Because there's no byte order concept for non byte oriented data.
 */
-void conv_byte_order(void* pval, unsigned int size_bytes, char byte_order){
+void conv_byte_order(void* pval, unsigned int size_bytes, order_t byte_order){
 	if(byte_order == ORD_NAT_BYTE){
 		return; //no need for conversion
 	}
@@ -239,7 +239,7 @@ void conv_byte_order(void* pval, unsigned int size_bytes, char byte_order){
 /*
 @desc Converts bit order in a byte.
 */
-void conv_bit_order(char* pval, char bit_order){
+void conv_bit_order(char* pval, order_t bit_order){
 	if(bit_order == get_native_bit_order()){
 		return; //no need for conversion
 	}
@@ -257,7 +257,7 @@ void conv_bit_order(char* pval, char bit_order){
 
 void conv_byte_bit_order(
 	char* pval, unsigned int size_bytes,
-	char byte_order, char bit_order){
+	order_t byte_order, order_t bit_order){
 
 	char *pold_val = (char*)malloc(size_bytes);
 	if(pold_val == NULL){
@@ -396,7 +396,7 @@ void shift_right_le(char* pval, unsigned int size_bytes, unsigned int shift_coun
 */
 pbitstring_t bitstring_new_uint(
 		uint_t val, unsigned int size,
-		char byte_order, char bit_order){
+		order_t byte_order, order_t bit_order){
 
 	unsigned int size_bytes = size/SZ_BYTE;
 	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
@@ -481,7 +481,7 @@ pbitstring_t bitstring_new_uint(
 */
 pbitstring_t bitstring_new_sint(
 		sint_t val, unsigned int size,
-		char byte_order, char bit_order){
+		order_t byte_order, order_t bit_order){
 
 	return bitstring_new_uint((uint_t)val, size, byte_order, bit_order);
 }
@@ -495,8 +495,8 @@ pbitstring_t bitstring_new_sint(
 @note Currently IEEE754 format is supported with 32 and 64bit sizes.
 */
 pbitstring_t bitstring_new_fp(
-		fp_t val, unsigned int size, char fp_rep,
-		char byte_order, char bit_order){
+		fp_t val, unsigned int size, fprep_t fp_rep,
+		order_t byte_order, order_t bit_order){
 
 	if(fp_rep != FP_IEEE754){
 		print_warning("Only IEEE754 fp representation is supported!\n");
