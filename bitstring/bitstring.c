@@ -28,7 +28,7 @@ order_t get_native_bit_order(){
 }
 
 /*LONG SIZE*/
-unsigned int get_native_long_int_sz(){
+size_t get_native_long_int_sz(){
 	return SZ_BYTE*sizeof(long int);
 }
 
@@ -97,8 +97,8 @@ void bitstring_del(pbitstring_t pbs){
 @desc Sets bitstrings data and size. Handles allocation and error handling.
 @note Bits from >=size are cleared.
 */
-pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
-	unsigned int size_bytes = size/SZ_BYTE;
+pbitstring_t bitstring_set(pbitstring_t pbs, void* data, size_t size){
+	size_t size_bytes = size/SZ_BYTE;
 	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
 
 	pbs->data = calloc(size_bytes + BSTR_DATA_SZ, 1);
@@ -122,7 +122,7 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, unsigned int size){
 @desc Get a bit value from a specified position.
 @note Positions are indexed starting with 0. Assume native big endian bit order.
 */
-char bitstring_get_bit(pbitstring_t pbs, int pos){
+char bitstring_get_bit(pbitstring_t pbs, unsigned int pos){
 	char get_byte = pbs->data[pos/SZ_BYTE];
 	char get_bit = ((get_byte>>(SZ_BYTE - pos%SZ_BYTE - 1)) & 0x01);
 	return get_bit;
@@ -133,7 +133,7 @@ char bitstring_get_bit(pbitstring_t pbs, int pos){
 @note Assume native big endian bit order.
 */
 void bitstring_append_bit(pbitstring_t pbs, char append_bit){
-	unsigned int size_bytes = (pbs->size+1)/SZ_BYTE;
+	size_t size_bytes = (pbs->size+1)/SZ_BYTE;
 	if(size_bytes > pbs->alloc_size_bytes){
 		pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
 		if(pbs->data == NULL){
@@ -213,7 +213,7 @@ Exceptions: crypto
 @faq Why is here "size_bytes" arg when everywhere else is "size" in bits?
 	- Because there's no byte order concept for non byte oriented data.
 */
-void conv_byte_order(void* pval, unsigned int size_bytes, order_t byte_order){
+void conv_byte_order(void* pval, size_t size_bytes, order_t byte_order){
 	if(byte_order == ORD_NAT_BYTE){
 		return; //no need for conversion
 	}
@@ -256,7 +256,7 @@ void conv_bit_order(char* pval, order_t bit_order){
 }
 
 void conv_byte_bit_order(
-	char* pval, unsigned int size_bytes,
+	char* pval, size_t size_bytes,
 	order_t byte_order, order_t bit_order){
 
 	char *pold_val = (char*)malloc(size_bytes);
@@ -290,7 +290,7 @@ void conv_byte_bit_order(
 @note This is a workaround for le machine integer shifts.
 @example: val_mem = 0x45 | 0x23 | 0x01 ->(shift 3)-> val_mem = 0x29 | 0x18 | 0x08
 */
-void shift_left_le(char* pval, unsigned int size_bytes, unsigned int shift_count){
+void shift_left_le(char* pval, size_t size_bytes, unsigned int shift_count){
 	if(shift_count == 0){
 		return;
 	}
@@ -317,10 +317,10 @@ void shift_left_le(char* pval, unsigned int size_bytes, unsigned int shift_count
 @desc Shifts bits to the left in a byte array (big endian machines).
 @TODO: check
 */
-void shift_left_be(char* pval, unsigned int size_bytes, unsigned int shift_count){
+void shift_left_be(char* pval, size_t size_bytes, unsigned int shift_count){
 	//val = 0x123456789a val_mem = 0x12 | 0x34 | 0x56 | 0x78 | 0x9a
 	//shift_count = 3 size_bytes = 5
-	unsigned short int two_bytes = 0;
+	uint16_t two_bytes = 0;
 	for(int i=0; i<size_bytes/sizeof(long); i+=sizeof(long)){
 		*((unsigned long int*)pval) <<= shift_count;
 		//val_mem = 0x91 | 0xA2 | 0xB3 | 0xC0 | 0x9a
@@ -346,7 +346,7 @@ void shift_left_be(char* pval, unsigned int size_bytes, unsigned int shift_count
 	}
 }
 
-void shift_left(char* pval, unsigned int size_bytes, unsigned int shift_count){
+void shift_left(char* pval, size_t size_bytes, unsigned int shift_count){
 	if(ORD_NAT_BYTE == ORD_LE){
 		shift_left_le(pval, size_bytes, shift_count);
 	}else{ //ORD_NAT_BYTE == ORD_BE
@@ -358,12 +358,12 @@ void shift_left(char* pval, unsigned int size_bytes, unsigned int shift_count){
 @desc Shifts bits to the right in a byte array (little endian machines).
 @note This is a workaround for le machine integer shifts.
 */
-void shift_right_le(char* pval, unsigned int size_bytes, unsigned int shift_count){
+void shift_right_le(char* pval, size_t size_bytes, unsigned int shift_count){
 	if(shift_count == 0){
 		return;
 	}
 	//shift_count = 3 size_bytes = 3
-	unsigned short int two_bytes = 0;
+	uint16_t two_bytes = 0;
 	char shifted = 0;
 	for(int i=0; i<size_bytes; i++){
 		//i=1
@@ -395,10 +395,10 @@ void shift_right_le(char* pval, unsigned int size_bytes, unsigned int shift_coun
 	ORD_LE - little endian
 */
 pbitstring_t bitstring_new_uint(
-		uint_t val, unsigned int size,
+		uint_t val, size_t size,
 		order_t byte_order, order_t bit_order){
 
-	unsigned int size_bytes = size/SZ_BYTE;
+	size_t size_bytes = size/SZ_BYTE;
 	size_bytes = size%SZ_BYTE?size_bytes+1:size_bytes;
 
 	pbitstring_t pbs = bitstring_new();
@@ -480,7 +480,7 @@ pbitstring_t bitstring_new_uint(
 @desc Makes a new bitstring which represents a serialized signed integer value.
 */
 pbitstring_t bitstring_new_sint(
-		sint_t val, unsigned int size,
+		sint_t val, size_t size,
 		order_t byte_order, order_t bit_order){
 
 	return bitstring_new_uint((uint_t)val, size, byte_order, bit_order);
@@ -495,7 +495,7 @@ pbitstring_t bitstring_new_sint(
 @note Currently IEEE754 format is supported with 32 and 64bit sizes.
 */
 pbitstring_t bitstring_new_fp(
-		fp_t val, unsigned int size, fprep_t fp_rep,
+		fp_t val, size_t size, fprep_t fp_rep,
 		order_t byte_order, order_t bit_order){
 
 	if(fp_rep != FP_IEEE754){
@@ -506,12 +506,12 @@ pbitstring_t bitstring_new_fp(
 
 	if(size == sizeof(float)*SZ_BYTE){
 		float new_val = (float)val;
-		unsigned int size_bytes = sizeof(float);
+		size_t size_bytes = sizeof(float);
 		conv_byte_bit_order((char*)&new_val, size_bytes, byte_order, bit_order);
 		bitstring_set(pbs, &new_val, size);
 	}else if(size == sizeof(double)*SZ_BYTE){
 		double new_val = (double)val;
-		unsigned int size_bytes = sizeof(double);
+		size_t size_bytes = sizeof(double);
 		conv_byte_bit_order((char*)&new_val, size_bytes, byte_order, bit_order);
 		bitstring_set(pbs, &new_val, size);
 	}else{
