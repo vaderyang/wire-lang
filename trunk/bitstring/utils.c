@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "utils.h"
 
-void print_debug(char *fmt, ...){
+void bstr_print_debug(char *fmt, ...){
 #if defined DBG_VERB_1
 	va_list ap;
 	va_start(ap, fmt);
@@ -12,7 +12,7 @@ void print_debug(char *fmt, ...){
 #endif
 }
 
-void print_error(char* fmt, ...){
+void bstr_print_error(char* fmt, ...){
 #if defined DBG_VERB_1
 	va_list ap;
 	va_start(ap, fmt);
@@ -22,7 +22,7 @@ void print_error(char* fmt, ...){
 #endif
 }
 
-void print_warning(char* fmt, ...){
+void bstr_print_warning(char* fmt, ...){
 #if defined DBG_VERB_1
 	va_list ap;
 	va_start(ap, fmt);
