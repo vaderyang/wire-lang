@@ -61,7 +61,7 @@ void conv_byte_order(void* pval, size_t size_bytes, order_t byte_order){
 
 	char *pold_val = (char*)malloc(size_bytes);
 	if(pold_val == NULL){
-		print_error("conv_byte_order: Could not allocate space!\n");
+		bstr_print_error("conv_byte_order: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
 	memcpy(pold_val, pval, size_bytes);
@@ -99,7 +99,7 @@ void conv_byte_bit_order(
 
 	char *pold_val = (char*)malloc(size_bytes);
 	if(pold_val == NULL){
-		print_error("conv_byte_bit_order: Could not allocate space!\n");
+		bstr_print_error("conv_byte_bit_order: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
 	memcpy(pold_val, pval, size_bytes);
@@ -208,23 +208,23 @@ void shift_right_le(char* pval, size_t size_bytes, unsigned int shift_count){
 *	Bitstring API
 */
 void bitstring_lib_init(){
-	print_debug("[BITSTRING_LIB_INIT]\n");
+	bstr_print_debug("[BITSTRING_LIB_INIT]\n");
 
 	native_byte_order = check_native_byte_order();
 	if(native_byte_order == ORD_LE)
-		print_debug("\t[NATIVE_BYTE_ORDER]\tLITTLE_ENDIAN/LSB_FIRST\n");
+		bstr_print_debug("\t[NATIVE_BYTE_ORDER]\tLITTLE_ENDIAN/LSB_FIRST\n");
 	else
-		print_debug("\t[NATIVE_BYTE_ORDER]\tBIG_ENDIAN/MSB_FIRST\n");
+		bstr_print_debug("\t[NATIVE_BYTE_ORDER]\tBIG_ENDIAN/MSB_FIRST\n");
 
-	print_debug("\t[NATIVE LONG INT SIZE]\t%dB\n", get_native_long_int_sz());
+	bstr_print_debug("\t[NATIVE LONG INT SIZE]\t%dB\n", get_native_long_int_sz());
 
-	print_debug("\t[NATIVE FP REP]\tIEEE754\n");
+	bstr_print_debug("\t[NATIVE FP REP]\tIEEE754\n");
 }
 
 pbitstring_t bitstring_new(){
 	pbitstring_t pbs = (pbitstring_t)malloc(sizeof(bitstring_t));
 	if(pbs == NULL){
-		print_error("bitstring_new: Could not allocate space!\n");
+		bstr_print_error("bitstring_new: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
 	bitstring_set(pbs, NULL, 0);
@@ -248,7 +248,7 @@ pbitstring_t bitstring_set(pbitstring_t pbs, void* data, size_t size){
 
 	pbs->data = calloc(size_bytes + BSTR_DATA_SZ, 1);
 	if(pbs->data == NULL){
-		print_error("bitstring_set: Could not allocate space!\n");
+		bstr_print_error("bitstring_set: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
 	pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
@@ -275,7 +275,7 @@ void bitstring_append_bit(pbitstring_t pbs, char append_bit){
 	if(size_bytes > pbs->alloc_size_bytes){
 		pbs->data = realloc(pbs->data, size_bytes + BSTR_DATA_SZ);
 		if(pbs->data == NULL){
-			print_error("bitstring_append_bit: Could not allocate space!\n");
+			bstr_print_error("bitstring_append_bit: Could not allocate space!\n");
 			exit(EXIT_FAILURE);
 		}
 		pbs->alloc_size_bytes = size_bytes + BSTR_DATA_SZ;
@@ -296,7 +296,7 @@ pbitstring_t bitstring_append(pbitstring_t dest, pbitstring_t src){
 			dest->data =
 				realloc(dest->data, (int)(dest->size/SZ_BYTE) + (int)(src->size/SZ_BYTE) + BSTR_DATA_SZ);
 			if(dest->data == NULL){
-				print_error("bitstring_append: Could not allocate space!\n");
+				bstr_print_error("bitstring_append: Could not allocate space!\n");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -340,7 +340,7 @@ pbitstring_t bitstring_new_uint(
 	/*align the value in bstr_uint_t sized (for later casting) memory container*/
 	char *psized_val = (char*)malloc(sizeof(bstr_uint_t));
 	if(psized_val == NULL){
-		print_error("bitstring_new_uint: Could not allocate space!\n");
+		bstr_print_error("bitstring_new_uint: Could not allocate space!\n");
 		exit(EXIT_FAILURE);
 	}
 	*((bstr_uint_t*)psized_val) = 0;
@@ -422,7 +422,7 @@ pbitstring_t bitstring_new_fp(
 		order_t byte_order, order_t bit_order){
 
 	if(fp_rep != FP_IEEE754){
-		print_warning("Only IEEE754 fp representation is supported!\n");
+		bstr_print_warning("Only IEEE754 fp representation is supported!\n");
 	}
 
 	pbitstring_t pbs = bitstring_new();
@@ -438,7 +438,7 @@ pbitstring_t bitstring_new_fp(
 		conv_byte_bit_order((char*)&new_val, size_bytes, byte_order, bit_order);
 		bitstring_set(pbs, &new_val, size);
 	}else{
-		print_warning("Only 32b/64b fps are supported\n");
+		bstr_print_warning("Only 32b/64b fps are supported\n");
 	}
 
 	return pbs;
