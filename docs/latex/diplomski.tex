@@ -10,22 +10,25 @@
 
 \begin{document}
 
-% TODO: Navedite broj rada.
+
 \thesisnumber{222}
 
-% TODO: Navedite naslov rada.
 \title{Methods for specification and automatic recognition of network protocols}
 
-% TODO: Navedite svoje ime i prezime.
 \author{Dražen Popović}
 
 \maketitle
 
-% Ispis stranice s napomenom o umetanju izvornika rada. Uklonite naredbu \izvornik ako želite izbaciti tu stranicu.
 \izvornik
 
-% Dodavanje zahvale ili prazne stranice. Ako ne želite dodati zahvalu, naredbu ostavite radi prazne stranice.
-\zahvala{Hvala!}
+\zahvala{
+I wish to thank my amazing family for making this dream come true. Thanks to
+my friends from the 9th for being there and helping me. Special thanks to my
+mentor Doc.dr.sc Domagoj Jakobović for getting me out of messy situations and for
+putting up with me.
+
+\emph{So Long, and Thanks for All the Fish! :)}
+}
 
 \tableofcontents
 
@@ -35,8 +38,8 @@ protocol design, specification and implementation. This provides the appropriate
 terminology and a knowledge framework for developing a network protocol specification
 language, called \emph{Wire}. A custom protocol is developed to demonstrate Wire, thus
 showing its motivation, purpose and inner workings. Detailed descriptions are 
-provided on making the Wire compiler including language analysis and code generation.
-The second part of this thesis analyzes the task of automatic recognition of
+provided on making of the Wire compiler including language analysis and code generation.
+The second part of this thesis analyses the task of automatic recognition of
 network protocols. The approach taken for solving this problem is evolutionary
 computation technique, more specifically genetic algorithms. By utilizing the 
 \emph{Evolutionary Computation Framework}, a network protocol genotype
@@ -1620,18 +1623,18 @@ a fitness of an individual. Nevertheless a network protocol genotype has been de
 using the C++ ECF framework, including the genetic operators (evaluator, crossover, mutation).
 The test example included `recognition' of \emph{Internet Protocol} (IP) data units. 
 
-\bibliography{literatura}
-\bibliographystyle{fer}
 
 \begin{abstract}
-This thesis discusses two separate and independent topics. First an overview on 
-network protocol theory including protocol design, specification and implementation 
-is given. This topic also introduces the Wire network protocol specification language 
-and contains detailed descriptions on language analysis and code generation. 
-The second topic deals with automatic recognition of `unknown' network protocols. 
-Genetic algorithms are utilized for solving this problem, therefore a network 
-protocol genotype and corresponding genetic operators are developed and implemented 
-using the C++ Evolutionary Computation Framework.
+Thesis gives an overview on network protocol theory including protocol design, 
+specification and implementation. A network protocol specification language called
+Wire has been developed in the scope of this thesis. Detailed descriptions on
+the analysis of the Wire language are given, as well as on code generation. An
+overview of Wire language is provided using an example network protocol.
+
+The problem of automatic network protocol recognition has been addressed in the scope
+of this thesis. Genetic algorithms have been utilized for solving this problem, 
+therefore a network protocol genotype and corresponding genetic operators have been
+developed and implemented using the C++ Evolutionary Computation Framework.
 
 \keywords{network protocol theory, abstract syntax notation, 
 wire definition language, automatic recognition, genetic algorithms, 
@@ -1640,18 +1643,22 @@ evolutionary computation framework}
 
 \title{Metode predstavljanja i automatskog prepoznavanja mrežnih protokola}
 \begin{sazetak}
-Ovaj rad obrađuje dvije odvojene i nezavisne teme. Za početak je napravljen pregled 
-nad teorijom mrežnim protokola, uključujući dizajn, specifikaciju i implementaciju
-mrežnih protokola. Također ova tema sadrži uvod u jezik za specifikaciju mrežnih protokola 
-- Wire i detaljna objašnjenja analize jezika i generiranja koda. Druga tema
-se bavi automatskim prepoznavanjem `nepoznatih' mrežnih protokola. Za rješavanje
-ovog problema korišteni su genetski algoritmi. Shodno tome razvijen je i ostvaren
-genotip mrežnog protokola i odgovarajući genetski operatori unutar C++ programskog 
-okruženja Evolutionary Computation Framework.
+Rad daje pregled na teorijom mrežnih protokola, uključujući dizajn, specifikaciju
+i implementaciju mrežnih protokola. U sklopu rada ostvaren je jezik za specifikaciju 
+mrežnih protokola nazvan Wire. Analiza jezika Wire i stvaranje koda su detaljno objašnjeni.
+Napravljen je pregled nad jezikom Wire koristeći primjerni mrežni protokol.
+
+Problem automatskog prepoznavanja mrežnih protokola također se obrađuje u sklopu
+ovog rada. Za rješavanje tog problema korišteni su genetski algoritmi, stoga su
+razvijeni genotip za predstavljanje mrežnog protokola i odgovarajući genetski operatori
+koristeći C++ okruženje Evolutionary Computation Framework.
 
 \kljucnerijeci{teorija mrežnih protokola, notacija za apstraktnu sintaksu, wire jezik, 
 automatsko prepoznavanje, genetski algoritmi, evolutionary computation framework}
 \end{sazetak}
+
+\bibliography{diplomski}
+\bibliographystyle{fer}
 
 \appendix
 \chapter{Wire lexical definitions}

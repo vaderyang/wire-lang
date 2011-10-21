@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.6.22)  30 JUN 2011 15:28
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.6.22)  1 JUL 2011 08:48
 entering extended mode
  %&-line parsing enabled.
 **diplomski.tex
@@ -500,26 +500,66 @@ Package: amsthm 2004/08/06 v2.20
 \thm@headsep=\skip51
 \dth@everypar=\toks31
 )
-\c@wirerule=\count120
-\c@wiredef=\count121
- (./diplomski.aux)
+(/usr/share/texmf-texlive/tex/latex/algorithms/algorithmic.sty
+Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
+\c@ALC@unique=\count120
+\c@ALC@line=\count121
+\c@ALC@rem=\count122
+\c@ALC@depth=\count123
+\ALC@tlm=\skip52
+\algorithmicindent=\skip53
+)
+(/usr/share/texmf-texlive/tex/latex/algorithms/algorithm.sty
+Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
+nment
+
+(/usr/share/texmf-texlive/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count124
+\float@exts=\toks32
+\float@box=\box30
+\@float@everytoks=\toks33
+\@floatcapt=\box31
+)
+\@float@every@algorithm=\toks34
+\c@algorithm=\count125
+)
+\c@wirerule=\count126
+\c@wiredef=\count127
+ (./diplomski.aux
+
+Package natbib Warning: Citation `asn1_jl' multiply defined.
+
+
+! Package natbib Error: Bibliography not compatible with author-year citations.
+
+(natbib)                Press <return> to continue in numerical citation style.
+
+
+See the natbib package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.130 ...and\NAT@force@numbers{}\NAT@force@numbers
+                                                  
+? 
+)
 \openout1 = `diplomski.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Try loading font information for T1+ptm on input line 8.
-
-(/usr/share/texmf-texlive/tex/latex/psnfss/t1ptm.fd
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Try loading font information for T1+ptm on input line 11.
+ (/usr/share/texmf-texlive/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 )
 *geometry auto-detecting driver*
@@ -565,39 +605,40 @@ driver: pdftex
 -----------------------
 (/usr/share/texmf/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count122
+\scratchcounter=\count128
 \scratchdimen=\dimen144
-\scratchbox=\box30
-\nofMPsegments=\count123
-\nofMParguments=\count124
-\everyMPshowfont=\toks32
-\MPscratchCnt=\count125
+\scratchbox=\box32
+\nofMPsegments=\count129
+\nofMParguments=\count130
+\everyMPshowfont=\toks35
+\MPscratchCnt=\count131
 \MPscratchDim=\dimen145
-\MPnumerator=\count126
-\everyMPtoPDFconversion=\toks33
+\MPnumerator=\count132
+\everyMPtoPDFconversion=\toks36
 )
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: float package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
-\c@lstlisting=\count127
-LaTeX Font Info:    Try loading font information for T1+phv on input line 19.
+\c@lstlisting=\count133
+LaTeX Font Info:    Try loading font information for T1+phv on input line 20.
  (/usr/share/texmf-texlive/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 )
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 19.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 20.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 19.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 20.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <24.88> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 19.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 20.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <24.88> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 19.
-LaTeX Font Info:    Try loading font information for U+msa on input line 19.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 20.
+LaTeX Font Info:    Try loading font information for U+msa on input line 20.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 19.
+LaTeX Font Info:    Try loading font information for U+msb on input line 20.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
@@ -611,14 +652,14 @@ File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 ) [1] [3] (./diplomski.toc
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <12> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 2.
-)
-\tf@toc=\write3
-\openout3 = `diplomski.toc'.
-
 
 [4
 
-]
+])
+\tf@toc=\write3
+\openout3 = `diplomski.toc'.
+
+ [5]
 Chapter 1.
 [1
 
@@ -628,19 +669,19 @@ Chapter 2.
 
 ]
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <17.28> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 66.
- <tcp_ip_model_hole.png, id=27, 949.5475pt x 530.98375pt>
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 72.
+ <tcp_ip_model_hole.png, id=31, 949.5475pt x 530.98375pt>
 File: tcp_ip_model_hole.png Graphic file (type png)
 
 <use tcp_ip_model_hole.png>
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 81.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 87.
 
-<tcp_ip_layering.png, id=28, 1064.97874pt x 547.04375pt>
+<tcp_ip_layering.png, id=32, 1064.97874pt x 547.04375pt>
 File: tcp_ip_layering.png Graphic file (type png)
 
 <use tcp_ip_layering.png> [3] [4 <./tcp_ip_model_hole.png (PNG copy)> <./tcp_ip
-_layering.png (PNG copy)>] <osi_model.png, id=36, 494.84875pt x 564.1075pt>
+_layering.png (PNG copy)>] <osi_model.png, id=39, 494.84875pt x 564.1075pt>
 File: osi_model.png Graphic file (type png)
 
 <use osi_model.png> [5 <./osi_model.png (PNG copy)>] [6] [7]
@@ -653,7 +694,7 @@ File: lstlang1.sty 2004/09/05 1.3 listings language file
 (/usr/share/texmf-texlive/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
 )
-<udp_picture_spec.png, id=46, 420.57124pt x 251.94125pt>
+<udp_picture_spec.png, id=49, 420.57124pt x 251.94125pt>
 File: udp_picture_spec.png Graphic file (type png)
 
 <use udp_picture_spec.png> [8]
@@ -664,9 +705,9 @@ File: lstlang1.sty 2004/09/05 1.3 listings language file
 File: lstlang2.sty 2004/09/05 1.3 listings language file
 )
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 283.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 289.
  [9 <./udp_picture_spec.png (PNG copy)>] [10] [11] [12]
-<syntax_relations.png, id=64, 634.37pt x 370.38374pt>
+<syntax_relations.png, id=67, 634.37pt x 370.38374pt>
 File: syntax_relations.png Graphic file (type png)
 
 <use syntax_relations.png> [13 <./syntax_relations.png (PNG copy)>] [14]
@@ -678,69 +719,129 @@ File: lstlang2.sty 2004/09/05 1.3 listings language file
 ) [15] [16] [17]
 [18] [19] [20] [21]
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 964.
- <flex.jpeg, id=94, 454.69875pt x 103.38625pt>
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 970.
+ <flex.jpeg, id=97, 454.69875pt x 103.38625pt>
 File: flex.jpeg Graphic file (type jpg)
 
-<use flex.jpeg> [22] <bison.jpeg, id=99, 454.69875pt x 103.38625pt>
+<use flex.jpeg> [22] <bison.jpeg, id=102, 454.69875pt x 103.38625pt>
 File: bison.jpeg Graphic file (type jpg)
 
 <use bison.jpeg> [23 <./flex.jpeg> <./bison.jpeg>]
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 1045
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 1051
 .
 
 (/usr/share/texmf-texlive/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <6> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 1045.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 1051.
 
  [24] [25] [26] [27]
-Overfull \hbox (313.47624pt too wide) in paragraph at lines 1282--1315
- [] 
+Overfull \hbox (0.60863pt too wide) in paragraph at lines 1290--1291
+[]\T1/ptm/m/n/12 General se-ri-al-iza-tion at-tribute ap-pli-ca-ble to string l
+o-cal dec-la-ra-tions. 
  []
 
-[28] [29] [30]
+[28] [29] [30] [31]
 Chapter 3.
-[31
-
-]
-Chapter 4.
-No file diplomski.bbl.
 [32
 
-] [33]
-Chapter A.
-(../../wire.l [34
+] [33] <net_proto_gen.png, id=140, 1059.96pt x 482.80376pt>
+File: net_proto_gen.png Graphic file (type png)
+
+<use net_proto_gen.png> [34 <./net_proto_gen.png (PNG copy)>]
+(/usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2004/09/05 1.3 listings language file
+)
+(/usr/share/texmf-texlive/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+) [35] [36] [37]
+Chapter 4.
+
+LaTeX Warning: Engleski naziv rada nije definiran. Koristi \engtitle za definir
+anje.
+
+[38
+
+] [39]
+Overfull \hbox (7.94473pt too wide) in paragraph at lines 1651--1655
+[]\T1/ptm/m/n/12 Problem au-tomatskog pre-poz-na-vanja mreºnih pro-tokola takož
+er se obražuje u sklopu
+ []
+
+(./diplomski.bbl [40]) [41
 
 ]
-LaTeX Font Info:    Font shape `OMS/ptm/m/it' in size <6> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 104.
- [35]) [36]
-Chapter B.
-(./wire_syn_bnf.report [37
+Chapter A.
+(../../wire.l
+Overfull \hbox (14.48848pt too wide) in paragraph at lines 9--10
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
 
-] [38]) [39] (./diplomski.aux) ) 
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 17.
+
+Overfull \hbox (119.60931pt too wide) in paragraph at lines 17--19
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (7.91843pt too wide) in paragraph at lines 25--27
+[][][][][][][][][][][][][][] 
+ []
+
+[42
+
+] [43] [44]
+LaTeX Font Info:    Font shape `OMS/ptm/m/it' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 104.
+
+Overfull \hbox (165.5997pt too wide) in paragraph at lines 112--113
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+) [45]
+Chapter B.
+(./wire_syn_bnf.report
+LaTeX Font Info:    Font shape `OMS/ptm/m/it' in size <6> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 6.
+ [46
+
+] [47])
+
+Package natbib Warning: There were multiply defined citations.
+
+[48] (./diplomski.aux
+
+Package natbib Warning: Citation(s) may have changed.
+(natbib)                Rerun to get citations correct.
+
+)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
- 7552 strings out of 493848
- 100062 string characters out of 1152823
- 204107 words of memory out of 3000000
- 10657 multiletter control sequences out of 15000+50000
- 78778 words of font info for 94 fonts, out of 3000000 for 9000
+ 7878 strings out of 493848
+ 104464 string characters out of 1152823
+ 209197 words of memory out of 3000000
+ 10964 multiletter control sequences out of 15000+50000
+ 83174 words of font info for 102 fonts, out of 3000000 for 9000
  714 hyphenation exceptions out of 8191
- 43i,8n,58p,498b,1624s stack positions out of 5000i,500n,10000p,200000b,50000s
-{/usr/share/texmf-texlive/fonts/enc/dvips/base/
-8r.enc}</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
-r/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texm
-f-texlive/fonts/type1/urw/courier/ucrro8a.pfb></usr/share/texmf-texlive/fonts/t
-ype1/urw/helvetic/uhvb8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/helvetic
-/uhvr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.pfb></usr/sh
-are/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/fo
-nts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/
-utmri8a.pfb>
-Output written on diplomski.pdf (43 pages, 313722 bytes).
+ 43i,8n,58p,498b,1620s stack positions out of 5000i,500n,10000p,200000b,50000s
+{/usr/share/texmf-texlive/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-texli
+ve/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-texlive/fonts/ty
+pe1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/a
+msfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/
+cmsy6.pfb></usr/share/texmf-texlive/fonts/type1/urw/courier/ucrro8a.pfb></usr/s
+hare/texmf-texlive/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texmf-texliv
+e/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw
+/times/utmb8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></
+usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texl
+ive/fonts/type1/urw/times/utmri8a.pfb>
+Output written on diplomski.pdf (53 pages, 400558 bytes).
 PDF statistics:
- 186 PDF objects out of 1000 (max. 8388607)
+ 226 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 36 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
 
