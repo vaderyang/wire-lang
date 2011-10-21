@@ -19,4 +19,7 @@ wire.yy.c: wire.l
 
 clean:
 	rm -f wire wire.yy.c wire.tab.c *~ wire.bison.report wire.tab.h *.o
+	
+wire_codegen: wire_codegen.c
+	$(COMPILE) wire_utils.c wire_codegen.c -o wire_codegen
 
