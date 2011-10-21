@@ -8,7 +8,7 @@ pnode_t node_new(enum nodes type){
 	pnode_t pnode = (pnode_t)malloc(sizeof(node_t));
 	if(pnode == NULL){
 		print_error("node_new: Could not allocate space!\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	pnode->type = type;
 	pnode->num_children = 0;
@@ -22,6 +22,7 @@ pnode_t node_add_child(pnode_t pnode_parent, void* pchild){
 
 
 int generate_code(pnode_t protocol){
+	
 	return 0;
 }
 
