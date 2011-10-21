@@ -115,7 +115,7 @@
 
 % Promjena naziva poglavlja ``Bibliografija'' -> ``Literatura''
 \addto\captionscroatian{%
-	\def\bibname{Literatura}
+	\def\bibname{Bibliography}
 }
 
 % Podešavanje oznaka kod listi (1. razina je crtica, 2. puni krug) 
@@ -194,7 +194,7 @@
 	{\setlength{\parskip}{0em} \parindent \z@ \raggedright \normalfont
 		\interlinepenalty\@M
 		\ifnum \c@secnumdepth >\m@ne
-			\Huge\bfseries Dodatak \thechapter \\ #1
+			\Huge\bfseries Appendix \thechapter \\ #1
 			\par\nobreak
 		\fi
 		\nobreak
@@ -230,7 +230,7 @@
 	{\setlength{\parskip}{0em} \parindent \z@ \raggedright
 		\normalfont
 		\interlinepenalty\@Mdef
-		\Huge\scshape Dodatak \\ #1\par
+		\Huge\scshape Appendix \\ #1\par
 		\nobreak
 		\vskip 40\p@
 	}
@@ -273,7 +273,7 @@
 	    	\if@radzavrsni%
 			  {\large\sffamily ZAVR\v{S}NI RAD br.~\@thesisnumber \par}%
 			\else \if@raddiplomski%
-			  {\large\sffamily MASTER THESIS num~\@thesisnumber \par}%
+			  {\large\sffamily Master Thesis num.~\@thesisnumber \par}%
 			\else {\large\sffamily\bfseries SEMINAR \par}%
 			\fi\fi
 			\if@radseminar \vskip 3em%
@@ -296,7 +296,7 @@
 			{\sffamily\large Zagreb, 
 			\ifcase\month\or
 				sije\v{c}anj\or velja\v{c}a\or o\v{z}ujak\or travanj\or svibanj\or
-	   	 		june\or srpanj\or kolovoz\or rujan\or listopad\or studeni\or
+	   	 		june\or July\or kolovoz\or rujan\or listopad\or studeni\or
 	    			prosinac\fi \space \number\year.%
 	    	}
 		\end{center}
